@@ -468,7 +468,7 @@ export default class MainScene extends Phaser.Scene {
     // --- MULAI BACKSOUND SAAT RESTART ---
     // Buat jika belum ada
     if (!this.backsound) {
-      this.backsound = this.sound.add('backsound', { loop: true, volume: 0.4 });
+      this.backsound = this.sound.add('backsound', { loop: true, volume: 0.3 });
     }
     // Mainkan jika tidak sedang dimainkan
     if (!this.backsound.isPlaying) {
