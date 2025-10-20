@@ -58,8 +58,9 @@ export default class MainScene extends Phaser.Scene {
 
     this.load.audio('scream', 'sounds/scream.mp3');
 
-    this.load.on('loaderror', (file: any) => {
-      console.warn('Gagal memuat:', file.key, file.src);
+    this.load.on('loaderror', (file: unknown) => {
+      const f = file as { key?: string; src?: string } | undefined;
+      console.warn('Gagal memuat:', f?.key, f?.src);
     });
   }
 
@@ -73,12 +74,15 @@ export default class MainScene extends Phaser.Scene {
     this.input.on('pointerdown', this.handleTap, this);
 
     // Pastikan semua suara didecode agar bisa dimainkan tanpa delay
-
-    this.sound.decodeAudio('shot');
-
-    this.sound.decodeAudio('zombie_sound');
-
-    this.sound.decodeAudio('scream');
+    try {
+      const s = this.sound as unknown as { decodeAudio?: (key: string) => void };
+      s.decodeAudio?.('shot');
+      s.decodeAudio?.('zombie_sound');
+      s.decodeAudio?.('scream');
+    } catch {
+      // decodeAudio may not exist in all sound managers or environments
+      // ignore if unavailable
+    }
   }
 
   private createBackground() {
@@ -243,7 +247,7 @@ export default class MainScene extends Phaser.Scene {
 
     try {
       this.sound.play('shot', { volume: 0.5 });
-    } catch (e) {
+    } catch {
       console.warn('Gagal memainkan suara tembakan');
     }
 
@@ -259,7 +263,7 @@ export default class MainScene extends Phaser.Scene {
 
         try {
           this.sound.play('zombie_sound', { volume: 0.6 });
-        } catch (e) {
+        } catch {
           console.warn('Suara zombie tidak tersedia');
         }
 
@@ -275,7 +279,7 @@ export default class MainScene extends Phaser.Scene {
 
         try {
           this.sound.play('scream', { volume: 0.7 });
-        } catch (e) {
+        } catch {
           console.warn('Suara scream tidak tersedia');
         }
 
@@ -477,7 +481,13 @@ export default class MainScene extends Phaser.Scene {
 
     this.spawnRate = Math.max(500, this.spawnRate - 100);
 
-    this.spawnTimer.delay = this.spawnRate;
+    // Recreate the spawn timer with the updated spawnRate instead of
+    // assigning to the read-only `delay` property.
+    if (this.spawnTimer) {
+      this.spawnTimer.destroy();
+    }
+
+    this.startSpawning();
   }
 
   update() {
@@ -501,12 +511,24 @@ export default class MainScene extends Phaser.Scene {
       if (Phaser.Geom.Rectangle.Overlaps(playerBounds, npcBounds)) {
         if (npc.type === 'zombie') {
           this.takeDamage();
+          // Play zombie sound when a zombie reaches the player
+          try {
+            this.sound.play('zombie_sound', { volume: 0.6 });
+          } catch {
+            console.warn('Suara zombie tidak tersedia saat bertabrakan');
+          }
         } else {
           this.score += 5;
 
           this.onScoreUpdate?.(this.score);
 
           this.createSuccessEffect(container.x, container.y);
+          // Play scream sound when a civilian reaches the player
+          try {
+            this.sound.play('scream', { volume: 0.7 });
+          } catch {
+            console.warn('Suara scream tidak tersedia saat bertabrakan');
+          }
         }
 
         container.destroy();
