@@ -184,7 +184,7 @@ export default class MainScene extends Phaser.Scene {
     } else {
       // Civilian tetap scream saat muncul
       try {
-        this.sound.play('scream', { volume: 0. });
+        this.sound.play('scream', { volume: 0.3 });
       } catch {
         console.warn('Suara scream tidak tersedia saat spawn');
       }
