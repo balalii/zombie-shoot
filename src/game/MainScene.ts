@@ -34,7 +34,7 @@ export default class MainScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('background', 'bg.png');
+    this.load.image('background', 'bg3.png');
     this.load.image('zombie', 'zombie.png');
     this.load.image('civilian', 'civilian.png');
     this.load.image('shooter', 'shooter.png');
