@@ -41,7 +41,7 @@ export default class MainScene extends Phaser.Scene {
 
     // Load audio files
     this.load.audio('shot', 'sounds/shotgun.mp3');
-    this.load.audio('zombie_sound', 'sounds/zombie_death.mp3');
+    this.load.audio('zombie_death', 'sounds/zombie_death.mp3');
     this.load.audio('scream', 'sounds/scream.mp3');
 
     // --- AUDIO BARU DITAMBAHKAN ---
@@ -65,7 +65,7 @@ export default class MainScene extends Phaser.Scene {
     try {
       const s = this.sound as unknown as { decodeAudio?: (key: string) => void };
       s.decodeAudio?.('shot');
-      s.decodeAudio?.('zombie_sound');
+      s.decodeAudio?.('zombie_death');
       s.decodeAudio?.('scream');
       // --- DECODE AUDIO BARU ---
       s.decodeAudio?.('backsound');
@@ -176,7 +176,7 @@ export default class MainScene extends Phaser.Scene {
     if (type === 'zombie') {
       try {
         // Buat suara, loop, dan mainkan
-        walkSound = this.sound.add('zombie_walk', { loop: true, volume: 0.3 });
+        walkSound = this.sound.add('zombie_walk', { loop: true, volume: 0.2 });
         walkSound.play();
       } catch {
         console.warn('Suara zombie_walk tidak tersedia saat spawn');
@@ -184,7 +184,7 @@ export default class MainScene extends Phaser.Scene {
     } else {
       // Civilian tetap scream saat muncul
       try {
-        this.sound.play('scream', { volume: 0.3 });
+        this.sound.play('scream', { volume: 0.2 });
       } catch {
         console.warn('Suara scream tidak tersedia saat spawn');
       }
@@ -225,7 +225,7 @@ export default class MainScene extends Phaser.Scene {
         this.onScoreUpdate?.(this.score);
         this.createBloodSplatter(hitNPC.container.x, hitNPC.container.y, 0xff0000);
         try {
-          this.sound.play('zombie_sound', { volume: 0.6 });
+          this.sound.play('zombie_death', { volume: 0.6 });
         } catch {
           console.warn('Suara zombie tidak tersedia');
         }
@@ -405,7 +405,7 @@ export default class MainScene extends Phaser.Scene {
         if (npc.type === 'zombie') {
           this.takeDamage();
           try {
-            this.sound.play('zombie_sound', { volume: 0.6 });
+            this.sound.play('zombie_death', { volume: 0.6 });
           } catch {
             console.warn('Suara zombie tidak tersedia saat bertabrakan');
           }
