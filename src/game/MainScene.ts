@@ -4,6 +4,7 @@ interface NPC {
   container: Phaser.GameObjects.Container;
   type: 'zombie' | 'civilian';
   speed: number;
+  walkSound?: Phaser.Sound.BaseSound; // <-- Ditambahkan untuk melacak suara jalan zombie
 }
 
 export default class MainScene extends Phaser.Scene {
@@ -21,6 +22,9 @@ export default class MainScene extends Phaser.Scene {
   private health = 3;
   private spawnRate = 1500;
   private difficulty = 1;
+
+  // Referensi untuk backsound
+  private backsound!: Phaser.Sound.BaseSound;
 
   private readonly NPC_SIZE = { width: 40, height: 40 };
   private readonly PLAYER_COLLISION_SIDES = { width: 153, height: 120 };
@@ -40,6 +44,11 @@ export default class MainScene extends Phaser.Scene {
     this.load.audio('zombie_sound', 'sounds/zombie_groan.mp3');
     this.load.audio('scream', 'sounds/scream.mp3');
 
+    // --- AUDIO BARU DITAMBAHKAN ---
+    this.load.audio('backsound', 'backsound.mp3');
+    this.load.audio('zombie_walk', 'zombie_walk.mp3');
+    // --- AKHIR PENAMBAHAN ---
+
     this.load.on('loaderror', (file: unknown) => {
       const f = file as { key?: string; src?: string } | undefined;
       console.warn('Gagal memuat:', f?.key, f?.src);
@@ -58,6 +67,10 @@ export default class MainScene extends Phaser.Scene {
       s.decodeAudio?.('shot');
       s.decodeAudio?.('zombie_sound');
       s.decodeAudio?.('scream');
+      // --- DECODE AUDIO BARU ---
+      s.decodeAudio?.('backsound');
+      s.decodeAudio?.('zombie_walk');
+      // --- AKHIR DECODE ---
     } catch {
       // decodeAudio may not exist in all sound managers or environments
       // ignore if unavailable
@@ -158,11 +171,20 @@ export default class MainScene extends Phaser.Scene {
     const isZombie = Math.random() < 0.7;
     const type: 'zombie' | 'civilian' = isZombie ? 'zombie' : 'civilian';
 
-    // --- PERUBAHAN DI SINI ---
-    // Mainkan suara scream HANYA jika civilian muncul
-    if (type === 'civilian') {
+    // --- PERUBAHAN LOGIKA SUARA SPAWN ---
+    let walkSound: Phaser.Sound.BaseSound | undefined;
+    if (type === 'zombie') {
       try {
-        this.sound.play('scream', { volume: 0.7 });
+        // Buat suara, loop, dan mainkan
+        walkSound = this.sound.add('zombie_walk', { loop: true, volume: 0.3 });
+        walkSound.play();
+      } catch {
+        console.warn('Suara zombie_walk tidak tersedia saat spawn');
+      }
+    } else {
+      // Civilian tetap scream saat muncul
+      try {
+        this.sound.play('scream', { volume: 0.4 });
       } catch {
         console.warn('Suara scream tidak tersedia saat spawn');
       }
@@ -179,17 +201,16 @@ export default class MainScene extends Phaser.Scene {
     const baseSpeed = 1 + this.difficulty * 0.1;
     const speed = type === 'zombie' ? baseSpeed : baseSpeed * 1.3;
 
-    this.npcs.push({ container, type, speed });
+    // Masukkan walkSound ke objek NPC
+    this.npcs.push({ container, type, speed, walkSound });
   }
 
   private handleTap(pointer: Phaser.Input.Pointer) {
     if (!this.gameActive) return;
 
-    // Efek tembakan
     this.createShotEffect();
     this.cameras.main.shake(100, 0.002);
 
-    // Mainkan suara tembakan
     try {
       this.sound.play('shot', { volume: 0.5 });
     } catch {
@@ -208,26 +229,19 @@ export default class MainScene extends Phaser.Scene {
         } catch {
           console.warn('Suara zombie tidak tersedia');
         }
+
+        // --- HENTIKAN SUARA JALAN ZOMBIE ---
+        hitNPC.walkSound?.stop();
+        // --- AKHIR PERUBAHAN ---
+
         hitNPC.container.destroy();
         this.npcs = this.npcs.filter((npc) => npc !== hitNPC);
       } else {
-        // --- PERUBAHAN DI SINI ---
-        // Suara scream dihapus dari blok ini
         this.takeDamage();
         this.createBloodSplatter(hitNPC.container.x, hitNPC.container.y, 0x0099ff);
         this.cameras.main.flash(200, 255, 0, 0, false);
-
-        /*
-        try {
-          this.sound.play('scream', { volume: 0.7 });
-        } catch {
-          console.warn('Suara scream tidak tersedia');
-        }
-        */
-
         hitNPC.container.destroy();
         this.npcs = this.npcs.filter((npc) => npc !== hitNPC);
-        // --- AKHIR PERUBAHAN ---
       }
     } else {
       this.createGroundSplash(pointer.x, pointer.y);
@@ -352,6 +366,14 @@ export default class MainScene extends Phaser.Scene {
     this.gameActive = false;
     this.spawnTimer.destroy();
     this.difficultyTimer.destroy();
+
+    // --- HENTIKAN SEMUA SUARA SAAT GAME OVER ---
+    if (this.backsound) {
+      this.backsound.stop();
+    }
+    this.npcs.forEach((npc) => npc.walkSound?.stop());
+    // --- AKHIR PERUBAHAN ---
+
     this.onGameOver?.();
   }
 
@@ -388,21 +410,15 @@ export default class MainScene extends Phaser.Scene {
             console.warn('Suara zombie tidak tersedia saat bertabrakan');
           }
         } else {
-          // --- PERUBAHAN DI SINI ---
-          // Suara scream dihapus dari blok ini
           this.score += 5;
           this.onScoreUpdate?.(this.score);
           this.createSuccessEffect(container.x, container.y);
-
-          /*
-          try {
-            this.sound.play('scream', { volume: 0.7 });
-          } catch {
-            console.warn('Suara scream tidak tersedia saat bertabrakan');
-          }
-          */
-          // --- AKHIR PERUBAHAN ---
         }
+
+        // --- HENTIKAN SUARA JALAN SAAT NPC MENCAPAI PEMAIN ---
+        npc.walkSound?.stop();
+        // --- AKHIR PERUBAHAN ---
+
         container.destroy();
         this.npcs.splice(i, 1);
         continue;
@@ -437,12 +453,27 @@ export default class MainScene extends Phaser.Scene {
     this.onScoreUpdate?.(this.score);
     this.onHealthUpdate?.(this.health);
 
-    this.npcs.forEach((npc) => npc.container.destroy());
+    // Hentikan semua suara zombie sebelumnya dan hancurkan
+    this.npcs.forEach((npc) => {
+      npc.walkSound?.stop();
+      npc.container.destroy();
+    });
     this.npcs = [];
 
     if (this.spawnTimer) this.spawnTimer.destroy();
     if (this.difficultyTimer) this.difficultyTimer.destroy();
 
     this.startGameSystems();
+
+    // --- MULAI BACKSOUND SAAT RESTART ---
+    // Buat jika belum ada
+    if (!this.backsound) {
+      this.backsound = this.sound.add('backsound', { loop: true, volume: 0.4 });
+    }
+    // Mainkan jika tidak sedang dimainkan
+    if (!this.backsound.isPlaying) {
+      this.backsound.play();
+    }
+    // --- AKHIR PERUBAHAN ---
   }
 }
