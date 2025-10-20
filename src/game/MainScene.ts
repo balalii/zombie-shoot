@@ -22,26 +22,47 @@ export default class MainScene extends Phaser.Scene {
   private spawnRate = 1500;
   private difficulty = 1;
 
-  // PERUBAHAN 1: Buat properti untuk mengatur ukuran NPC dengan mudah
-  private readonly NPC_SIZE = { width: 55, height: 55 };
+  private readonly NPC_SIZE = { width: 40, height: 40 };
+  private readonly PLAYER_COLLISION_SIDES = { width: 235, height: 210 };
+  // DIHILANGKAN: Properti untuk graphics box border
+  // private collisionBoxGraphics!: Phaser.GameObjects.Graphics;
 
   constructor() {
     super({ key: 'MainScene' });
   }
 
   preload() {
-    this.load.image('background', 'background.png');
+    this.load.image('background', 'bg2.png');
     this.load.image('zombie', 'zombie.png');
     this.load.image('civilian', 'civilian.png');
     this.load.image('shooter', 'shooter.png');
   }
 
   create() {
+    this.createBackground();
+
     const { width, height } = this.cameras.main;
-    const bg = this.add.image(width / 2, height / 2, 'background');
-    bg.setDisplaySize(width, height);
     this.createPlayer(width / 2, height / 2);
     this.input.on('pointerdown', this.handleTap, this);
+  }
+
+  private createBackground() {
+    const { width: screenWidth, height: screenHeight } = this.cameras.main;
+    const bg = this.add.image(screenWidth / 2, screenHeight / 2, 'background');
+
+    const imageWidth = bg.width;
+    const imageHeight = bg.height;
+
+    const screenRatio = screenWidth / screenHeight;
+    const imageRatio = imageWidth / imageHeight;
+
+    if (screenRatio > imageRatio) {
+      bg.displayWidth = screenWidth;
+      bg.scaleY = bg.scaleX;
+    } else {
+      bg.displayHeight = screenHeight;
+      bg.scaleX = bg.scaleY;
+    }
   }
 
   public startGame() {
@@ -87,6 +108,11 @@ export default class MainScene extends Phaser.Scene {
       repeat: -1,
       ease: 'Sine.easeInOut',
     });
+
+    // DIHILANGKAN: Kode untuk membuat dan menggambar box border merah
+    // this.collisionBoxGraphics = this.add.graphics();
+    // this.collisionBoxGraphics.lineStyle(2, 0xff0000, 0.5);
+    // this.collisionBoxGraphics.strokeRect(x - this.PLAYER_COLLISION_SIDES.width / 2, y - this.PLAYER_COLLISION_SIDES.height / 2, this.PLAYER_COLLISION_SIDES.width, this.PLAYER_COLLISION_SIDES.height);
   }
 
   private spawnNPC() {
@@ -120,12 +146,13 @@ export default class MainScene extends Phaser.Scene {
     const type: 'zombie' | 'civilian' = isZombie ? 'zombie' : 'civilian';
     const spriteKey = type === 'zombie' ? 'zombie' : 'civilian';
     const sprite = this.add.image(0, 0, spriteKey);
-
-    // PERUBAHAN 2: Gunakan properti NPC_SIZE yang sudah dibuat
     sprite.setDisplaySize(this.NPC_SIZE.width, this.NPC_SIZE.height);
 
-    const shadow = this.add.ellipse(0, 20, 30, 8, 0x000000, 0.4);
-    const container = this.add.container(startX, startY, [shadow, sprite]);
+    // DIHILANGKAN: Kode untuk membuat bayangan
+    // const shadow = this.add.ellipse(0, 20, 30, 8, 0x000000, 0.4);
+
+    // DIUBAH: Container sekarang hanya berisi sprite
+    const container = this.add.container(startX, startY, [sprite]);
     container.setSize(this.NPC_SIZE.width, this.NPC_SIZE.height).setInteractive();
 
     const baseSpeed = 1 + this.difficulty * 0.1;
@@ -157,20 +184,12 @@ export default class MainScene extends Phaser.Scene {
 
   private createShotEffect() {
     const angle = this.player.rotation;
-
-    // PERUBAHAN 3: Hitung posisi percikan dengan offset ke kanan
-    const shotOriginDistance = 25; // Jarak ke depan
-    const shotOriginOffsetRight = 10; // Jarak ke kanan
-
-    // Hitung posisi depan (seperti sebelumnya)
+    const shotOriginDistance = 25;
+    const shotOriginOffsetRight = 10;
     const forwardX = Math.cos(angle) * shotOriginDistance;
     const forwardY = Math.sin(angle) * shotOriginDistance;
-
-    // Hitung posisi kanan (tegak lurus dari arah depan)
     const rightX = Math.cos(angle + Math.PI / 2) * shotOriginOffsetRight;
     const rightY = Math.sin(angle + Math.PI / 2) * shotOriginOffsetRight;
-
-    // Gabungkan posisi player, posisi depan, dan posisi kanan
     const tipX = this.player.x + forwardX + rightX;
     const tipY = this.player.y + forwardY + rightY;
 
@@ -262,35 +281,45 @@ export default class MainScene extends Phaser.Scene {
   update() {
     if (!this.gameActive) return;
 
-    const { height } = this.cameras.main;
     const pointer = this.input.activePointer;
-
     const angle = Phaser.Math.Angle.Between(this.player.x, this.player.y, pointer.x, pointer.y);
     this.player.rotation = angle;
+
+    // DIHILANGKAN: Kode untuk menggambar ulang box border
+    // this.collisionBoxGraphics.clear();
+    // this.collisionBoxGraphics.lineStyle(2, 0xff0000, 0.5);
+    // this.collisionBoxGraphics.strokeRect(this.player.x - this.PLAYER_COLLISION_SIDES.width / 2, this.player.y - this.PLAYER_COLLISION_SIDES.height / 2, this.PLAYER_COLLISION_SIDES.width, this.PLAYER_COLLISION_SIDES.height);
 
     for (let i = this.npcs.length - 1; i >= 0; i--) {
       const npc = this.npcs[i];
       const container = npc.container;
-      const dx = this.player.x - container.x;
-      const dy = this.player.y - container.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
 
-      if (distance < 30) {
+      const playerBounds = new Phaser.Geom.Rectangle(this.player.x - this.PLAYER_COLLISION_SIDES.width / 2, this.player.y - this.PLAYER_COLLISION_SIDES.height / 2, this.PLAYER_COLLISION_SIDES.width, this.PLAYER_COLLISION_SIDES.height);
+
+      const npcBounds = new Phaser.Geom.Rectangle(container.x - this.NPC_SIZE.width / 2, container.y - this.NPC_SIZE.height / 2, this.NPC_SIZE.width, this.NPC_SIZE.height);
+
+      if (Phaser.Geom.Rectangle.Overlaps(playerBounds, npcBounds)) {
         if (npc.type === 'zombie') this.takeDamage();
         container.destroy();
         this.npcs.splice(i, 1);
         continue;
       }
 
+      const dx = this.player.x - container.x;
+      const dy = this.player.y - container.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
       const moveX = (dx / distance) * npc.speed;
       const moveY = (dy / distance) * npc.speed;
       container.x += moveX;
       container.y += moveY;
 
+      const { height } = this.cameras.main;
       const scale = 0.8 + (container.y / height) * 0.4;
       container.setScale(scale);
 
-      const sprite = container.list[1] as Phaser.GameObjects.Image;
+      // DIUBAH: Mengambil sprite dari index 0 karena shadow sudah dihilangkan
+      const sprite = container.list[0] as Phaser.GameObjects.Image;
       const rotationAngle = Phaser.Math.Angle.Between(container.x, container.y, this.player.x, this.player.y);
       sprite.rotation = rotationAngle + Math.PI / 15;
 
