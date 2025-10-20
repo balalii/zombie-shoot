@@ -41,7 +41,7 @@ export default class MainScene extends Phaser.Scene {
 
     // Load audio files
     this.load.audio('shot', 'sounds/shotgun.mp3');
-    this.load.audio('zombie_sound', 'sounds/zombie_groan.mp3');
+    this.load.audio('zombie_sound', 'sounds/zombie_death.mp3');
     this.load.audio('scream', 'sounds/scream.mp3');
 
     // --- AUDIO BARU DITAMBAHKAN ---
