@@ -9,7 +9,7 @@ export default {
       },
       // 2. Add custom hard box-shadows for a pixelated look
       boxShadow: {
-        'pixel-blue': '8px 8px 0px 0px #2563eb', // A blue shadow
+        'pixel-red': '8px 8px 0px 0px #781600', // A blue shadow
         'pixel-green': '6px 6px 0px 0px #15803d', // A green shadow
       },
       // 3. Add a keyframe animation for blinking text

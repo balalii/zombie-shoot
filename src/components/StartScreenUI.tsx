@@ -10,7 +10,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
         - Reduced vertical spacing on mobile (space-y-4) to fit on shorter screens.
         - Adjusted padding to be slightly less on mobile (p-6) and more on larger screens (sm:p-8).
       */}
-      <div className="text-center space-y-4 sm:space-y-6 max-w-xl w-full bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-500 shadow-pixel-blue">
+      <div className="text-center space-y-4 sm:space-y-6 max-w-xl w-full bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-500 shadow-pixel-red">
         {/* Game Title */}
         <div>
           {/*

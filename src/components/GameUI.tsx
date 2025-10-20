@@ -82,7 +82,7 @@ export default function GameUI({ health, score, isGameOver, onRestart }: GameUIP
           `}
         >
           {/* Main Panel */}
-          <div className="text-center space-y-4 sm:space-y-6 w-full max-w-md bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-500 shadow-pixel-blue">
+          <div className="text-center space-y-4 sm:space-y-6 w-full max-w-md bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-500 shadow-pixel-red">
             {/* Game Over Title: Responsive font size */}
             <h1 className="text-2xl sm:text-5xl text-red-500 [text-shadow:3px_3px_0_#000]">GAME OVER</h1>
 

@@ -23,7 +23,7 @@ export default class MainScene extends Phaser.Scene {
   private difficulty = 1;
 
   private readonly NPC_SIZE = { width: 40, height: 40 };
-  private readonly PLAYER_COLLISION_SIDES = { width: 235, height: 210 };
+  private readonly PLAYER_COLLISION_SIDES = { width: 153, height: 120 };
   // DIHILANGKAN: Properti untuk graphics box border
   // private collisionBoxGraphics!: Phaser.GameObjects.Graphics;
 
@@ -32,7 +32,7 @@ export default class MainScene extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('background', 'bg2.png');
+    this.load.image('background', 'bg.png');
     this.load.image('zombie', 'zombie.png');
     this.load.image('civilian', 'civilian.png');
     this.load.image('shooter', 'shooter.png');
