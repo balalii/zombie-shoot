@@ -45,8 +45,8 @@ export default class MainScene extends Phaser.Scene {
     this.load.audio('scream', 'sounds/scream.mp3');
 
     // --- AUDIO BARU DITAMBAHKAN ---
-    this.load.audio('backsound', 'backsound.mp3');
-    this.load.audio('zombie_walk', 'zombie_walk.mp3');
+    this.load.audio('backsound', 'sounds/backsound.mp3');
+    this.load.audio('zombie_walk', 'sounds/zombie_walk.mp3');
     // --- AKHIR PENAMBAHAN ---
 
     this.load.on('loaderror', (file: unknown) => {
@@ -184,7 +184,7 @@ export default class MainScene extends Phaser.Scene {
     } else {
       // Civilian tetap scream saat muncul
       try {
-        this.sound.play('scream', { volume: 0.4 });
+        this.sound.play('scream', { volume: 0. });
       } catch {
         console.warn('Suara scream tidak tersedia saat spawn');
       }
