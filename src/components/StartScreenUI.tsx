@@ -4,7 +4,7 @@ interface StartScreenUIProps {
 
 export default function StartScreenUI({ onStart }: StartScreenUIProps) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-black/95 z-30 p-4 font-pixel">
+    <div className="absolute inset-0 flex items-center justify-center bg-black/95 z-30 p-4 font-pixel h-full overflow-y-auto">
       <div className="text-center max-w-xl w-full bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-600 shadow-2xl relative overflow-hidden">
         {/* Background Accents */}
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50 animate-pulse"></div>
