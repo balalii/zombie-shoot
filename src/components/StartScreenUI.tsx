@@ -4,40 +4,40 @@ interface StartScreenUIProps {
 
 export default function StartScreenUI({ onStart }: StartScreenUIProps) {
   return (
-    // The background remains dark for high contrast
     <div className="absolute inset-0 flex items-center justify-center bg-black/95 z-30 p-4 font-pixel">
-      {/* Main container with a classic pixelated border.
-        - Reduced vertical spacing on mobile (space-y-4) to fit on shorter screens.
-        - Adjusted padding to be slightly less on mobile (p-6) and more on larger screens (sm:p-8).
-      */}
-      <div className="text-center space-y-4 sm:space-y-6 max-w-xl w-full bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-500 shadow-pixel-red">
-        {/* Game Title */}
-        <div>
-          {/*
-            - Scaled down the base font sizes for the title to prevent awkward wrapping on narrow screens.
-            - It now starts smaller and scales up more aggressively.
-          */}
-          <h1 className="text-xl sm:text-5xl md:text-6xl text-white [text-shadow:3px_3px_0_#000] tracking-wider">ZOMBIE</h1>
-          <h2 className="text-xl sm:text-6xl md:text-7xl text-red-500 [text-shadow:3px_3px_0_#000]">DEFENSE</h2>
+      <div className="text-center max-w-xl w-full bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-600 shadow-2xl relative overflow-hidden">
+        {/* Background Accents */}
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50 animate-pulse"></div>
+
+        <h1 className="text-3xl sm:text-5xl font-black text-white mb-1 tracking-tighter">
+          ZOMBIE <span className="text-red-600">DEFENSE</span>
+        </h1>
+        <p className="text-gray-500 text-xs sm:text-sm tracking-[0.2em] mb-6">PROJECT: DEADEYE</p>
+
+        {/* Narrative / Instructions Box [cite: 172, 174, 55] */}
+        <div className="bg-black/40 p-4 text-left space-y-3 mb-8 border-l-4 border-yellow-500">
+          <p className="text-yellow-400 text-xs font-bold mb-1">BRIEFING DARI JENDRAL:</p>
+          <ul className="text-gray-300 text-xs sm:text-sm space-y-2 list-disc list-inside">
+            <li>
+              <strong className="text-white">SHOOT TO KILL:</strong> Tembak Zombie sebelum masuk gedung.
+            </li>
+            <li>
+              <strong className="text-red-400">BIG BRUTE (Merah):</strong> Butuh <span className="underline">2 tembakan</span> untuk mati.
+            </li>
+            <li>
+              <strong className="text-blue-400">CIVILIANS:</strong> JANGAN TEMBAK! Biarkan masuk untuk Bonus Skor. Tembak = Penalti.
+            </li>
+            <li>
+              <strong className="text-pink-400">HEARTS:</strong> Tembak Hati = Hancur. Biarkan masuk = +1 Nyawa.
+            </li>
+          </ul>
         </div>
 
-        {/* Short Instructions */}
-        {/*
-          - Slightly increased the base text size for better readability on mobile.
-        */}
-        <p className="text-sm md:text-base text-gray-100 max-w-xs mx-auto leading-relaxed">Tap zombies to survive. Don't hit the civilians!</p>
-
-        {/* Start Button */}
-        <button
-          onClick={onStart}
-          // Removing rounding, adding a hard border and shadow.
-          // The hover/active states now shift the button slightly for a physical "press" feel.
-          // - Adjusted font size to be slightly smaller on mobile (text-2xl) and scale up.
-          // - Tweaked vertical padding for a better button shape on mobile.
-          className="w-full bg-green-500 text-white text-sm sm:text-3xl font-bold py-3 sm:py-4 px-6 border-4 border-green-900 shadow-pixel-green hover:bg-green-400 active:bg-green-600 transition-all transform active:translate-y-px active:shadow-none focus:outline-none focus:ring-2 focus:ring-green-300"
-        >
-          <span className="animate-blink">START GAME</span>
+        <button onClick={onStart} className="w-full group relative bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-6 border-b-4 border-red-800 active:border-b-0 active:translate-y-1 transition-all">
+          <span className="text-xl sm:text-2xl tracking-widest group-hover:animate-pulse">START MISSION</span>
         </button>
+
+        <p className="mt-4 text-[10px] text-gray-600">"Buktikan kamu tidak pernah meleset, Letnan!"</p>
       </div>
     </div>
   );

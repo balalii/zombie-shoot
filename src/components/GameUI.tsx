@@ -1,72 +1,59 @@
-import { Heart, Maximize } from 'lucide-react';
+import { Heart, Maximize, ShieldAlert } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 interface GameUIProps {
   health: number;
   score: number;
+  level: number; // Prop baru untuk level
   isGameOver: boolean;
   onRestart: () => void;
 }
 
-export default function GameUI({ health, score, isGameOver, onRestart }: GameUIProps) {
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  // State to control the visibility and animation of the game over screen
+export default function GameUI({ health, score, level, isGameOver, onRestart }: GameUIProps) {
   const [isScreenVisible, setIsScreenVisible] = useState(false);
 
   useEffect(() => {
-    // When the game ends, trigger the screen to become visible
-    if (isGameOver) {
-      setIsScreenVisible(true);
-    }
+    if (isGameOver) setIsScreenVisible(true);
   }, [isGameOver]);
 
   const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
-      try {
-        await document.documentElement.requestFullscreen();
-        setIsFullscreen(true);
-      } catch (err) {
-        console.error('Error attempting to enable full-screen mode:', err);
-      }
+      await document.documentElement.requestFullscreen().catch((err) => console.error(err));
     } else {
-      if (document.exitFullscreen) {
-        await document.exitFullscreen();
-        setIsFullscreen(false);
-      }
+      if (document.exitFullscreen) await document.exitFullscreen();
     }
   };
 
   const handleRestartClick = () => {
-    // Start the fade-out animation
     setIsScreenVisible(false);
-    // Wait for the animation to finish before calling the restart function
-    setTimeout(() => {
-      onRestart();
-    }, 500); // This duration should match the transition duration
+    setTimeout(() => onRestart(), 500);
   };
 
   return (
-    <div className="font-pixel">
-      {/* HUD (Heads-Up Display) */}
-      <div className="absolute top-0 left-0 right-0 p-3 sm:p-4 flex justify-between items-center bg-gray-900/20 border-b-4 border-gray-600 z-10">
-        {/* Health Hearts */}
-        <div className="flex items-center gap-1 sm:gap-2">
-          {/* Use responsive icon sizes */}
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Heart
-              key={i}
-              className={`${i < health ? 'fill-red-500 text-red-700' : 'fill-gray-800 text-gray-600'} transition-all duration-200`}
-              // Set a base size for mobile and a larger size for sm screens and up
-              size={24}
-            />
-          ))}
+    <div className="font-pixel pointer-events-none">
+      {/* HUD: pointer-events-none agar tidak menghalangi tap game, kecuali tombol */}
+
+      <div className="absolute top-0 left-0 right-0 p-3 sm:p-4 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent z-10">
+        {/* KIRI: Health & Level */}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              // Max HP 5 untuk mengakomodasi fitur Heart Bonus
+              <Heart key={i} className={`${i < health ? 'fill-red-500 text-red-600' : 'fill-gray-900 text-gray-700'} transition-all duration-200`} size={24} />
+            ))}
+          </div>
+
+          {/* Level Indicator [cite: 27, 47] */}
+          <div className="flex items-center gap-2 bg-gray-800/80 px-3 py-1 rounded border border-gray-600 w-fit">
+            <ShieldAlert size={16} className="text-yellow-500" />
+            <span className="text-yellow-500 font-bold text-sm tracking-widest">DEFCON {level}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Score: Increased base font size for better mobile readability */}
-          <div className="text-white text-2xl sm:text-3xl tracking-wider">{score}</div>
-          {/* Fullscreen Button: Increased padding for a larger tap target on mobile */}
-          <button onClick={toggleFullscreen} className="bg-blue-600 p-2 border-2 border-blue-800 hover:bg-blue-500 transition-colors active:bg-blue-700" aria-label="Toggle fullscreen">
-            {/* Use responsive icon sizes here too */}
+
+        {/* KANAN: Score & Settings */}
+        <div className="flex flex-col items-end gap-2">
+          <div className="text-white text-3xl sm:text-4xl tracking-widest drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">{score.toString().padStart(6, '0')}</div>
+          <button onClick={toggleFullscreen} className="pointer-events-auto bg-blue-600/80 p-2 rounded hover:bg-blue-500 transition-colors">
             <Maximize size={20} className="text-white" />
           </button>
         </div>
@@ -74,31 +61,18 @@ export default function GameUI({ health, score, isGameOver, onRestart }: GameUIP
 
       {/* Game Over Screen */}
       {isGameOver && (
-        <div
-          className={`
-            absolute inset-0 flex items-center justify-center bg-black/80 z-20 p-4
-            transition-opacity duration-500 ease-in-out
-            ${isScreenVisible ? 'opacity-100' : 'opacity-0'}
-          `}
-        >
-          {/* Main Panel */}
-          <div className="text-center space-y-4 sm:space-y-6 w-full max-w-md bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-500 shadow-pixel-red">
-            {/* Game Over Title: Responsive font size */}
-            <h1 className="text-2xl sm:text-5xl text-red-500 [text-shadow:3px_3px_0_#000]">GAME OVER</h1>
+        <div className={`pointer-events-auto absolute inset-0 flex items-center justify-center bg-black/90 z-20 transition-opacity duration-500 ${isScreenVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <div className="text-center w-full max-w-md bg-gray-900 p-6 border-4 border-double border-red-600 shadow-[0_0_20px_rgba(220,38,38,0.5)]">
+            <h1 className="text-4xl sm:text-6xl text-red-600 mb-2 font-black tracking-tighter">M.I.A</h1>
+            <p className="text-gray-400 mb-6 text-sm">MISSION FAILED - BASE OVERRUN</p>
 
-            {/* Score Box */}
-            <div className="bg-gray-900 py-3 sm:py-4 border-y-4 border-gray-600 space-y-1 sm:space-y-2">
-              <p className="text-white text-lg sm:text-xl">FINAL SCORE</p>
-              {/* Responsive font size for the score */}
-              <p className="text-yellow-400 text-2xl sm:text-6xl">{score}</p>
+            <div className="bg-black/50 py-4 mb-6 border border-gray-700">
+              <p className="text-gray-400 text-xs tracking-widest mb-1">FINAL SCORE</p>
+              <p className="text-yellow-400 text-4xl sm:text-5xl font-bold">{score}</p>
             </div>
 
-            {/* Restart Button: Responsive font size and padding */}
-            <button
-              onClick={handleRestartClick}
-              className="w-full bg-green-500 text-white text-xl sm:text-3xl font-bold py-3 sm:py-4 px-6 border-4 border-green-900 shadow-pixel-green hover:bg-green-400 active:bg-green-600 transition-colors transform active:translate-y-px active:shadow-none"
-            >
-              <span className="animate-blink">PLAY AGAIN</span>
+            <button onClick={handleRestartClick} className="w-full bg-green-600 hover:bg-green-500 text-white text-xl font-bold py-4 border-b-4 border-green-800 active:border-b-0 active:translate-y-1 transition-all">
+              REDEPLOY
             </button>
           </div>
         </div>

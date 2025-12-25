@@ -1,23 +1,25 @@
-// src/App.tsx
-
 import { useEffect, useRef, useState } from 'react';
 import Phaser from 'phaser';
 import { createGameConfig } from './game/config';
 import MainScene from './game/MainScene';
 import GameUI from './components/GameUI';
-import StartScreenUI from './components/StartScreenUI'; // 1. Import komponen baru
+import StartScreenUI from './components/StartScreenUI';
 
 export default function App() {
   const gameRef = useRef<Phaser.Game | null>(null);
   const sceneRef = useRef<MainScene | null>(null);
 
-  // 2. State baru untuk mengontrol alur: 'start', 'playing', 'gameOver'
   const [gameState, setGameState] = useState<'start' | 'playing' | 'gameOver'>('start');
-
   const [health, setHealth] = useState(3);
   const [score, setScore] = useState(0);
+  const [level, setLevel] = useState(1); // State Level Baru
 
   useEffect(() => {
+    // Clean up game lama jika ada (development hot-reload fix)
+    if (gameRef.current) {
+      gameRef.current.destroy(true);
+    }
+
     const config = createGameConfig('game-container');
     gameRef.current = new Phaser.Game(config);
 
@@ -25,14 +27,12 @@ export default function App() {
       const scene = gameRef.current?.scene.getScene('MainScene') as MainScene;
       if (scene) {
         sceneRef.current = scene;
-
-        // Setup callbacks ke React
-        scene.onScoreUpdate = (newScore: number) => setScore(newScore);
-        scene.onHealthUpdate = (newHealth: number) => setHealth(newHealth);
-        // Saat game over, ubah state utama
+        scene.onScoreUpdate = (s) => setScore(s);
+        scene.onHealthUpdate = (h) => setHealth(h);
+        scene.onLevelUpdate = (l) => setLevel(l); // Sambungkan Level Update
         scene.onGameOver = () => setGameState('gameOver');
       }
-    }, 100);
+    }, 200);
 
     return () => {
       clearTimeout(timer);
@@ -40,32 +40,26 @@ export default function App() {
     };
   }, []);
 
-  // 3. Fungsi untuk memulai permainan dari layar awal
   const handleStartGame = () => {
     setGameState('playing');
-    sceneRef.current?.startGame(); // Panggil fungsi baru di MainScene
+    sceneRef.current?.startGame();
   };
 
-  // 4. Fungsi untuk memulai ulang setelah game over
   const handleRestart = () => {
     setScore(0);
     setHealth(3);
+    setLevel(1);
     setGameState('playing');
     sceneRef.current?.restartGame();
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
-      {/* 5. Tampilkan UI berdasarkan gameState */}
-
-      {/* Tampilkan Layar Awal */}
+    <div className="relative w-full h-screen overflow-hidden bg-black select-none">
       {gameState === 'start' && <StartScreenUI onStart={handleStartGame} />}
 
-      {/* Kontainer game selalu ada, tapi game di dalamnya dijeda */}
       <div id="game-container" className="w-full h-full" />
 
-      {/* Tampilkan HUD dan Layar Game Over */}
-      {(gameState === 'playing' || gameState === 'gameOver') && <GameUI health={health} score={score} isGameOver={gameState === 'gameOver'} onRestart={handleRestart} />}
+      {(gameState === 'playing' || gameState === 'gameOver') && <GameUI health={health} score={score} level={level} isGameOver={gameState === 'gameOver'} onRestart={handleRestart} />}
     </div>
   );
 }
