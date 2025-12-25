@@ -9,7 +9,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
         {/* Background Accents */}
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50 animate-pulse"></div>
 
-        <h1 className="text-3xl sm:text-5xl font-black text-white mb-1 tracking-tighter">
+        <h1 className="text-xl sm:text-5xl font-black text-white mb-1 tracking-tighter">
           ZOMBIE <span className="text-red-600">DEFENSE</span>
         </h1>
         <p className="text-gray-500 text-xs sm:text-sm tracking-[0.2em] mb-6">PROJECT: DEADEYE</p>
@@ -37,7 +37,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
         </div>
 
         <button onClick={onStart} className="w-full group relative bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-6 border-b-4 border-red-800 active:border-b-0 active:translate-y-1 transition-all">
-          <span className="text-xl sm:text-2xl tracking-widest group-hover:animate-pulse">START MISSION</span>
+          <span className="text-md sm:text-2xl tracking-widest group-hover:animate-pulse">START MISSION</span>
         </button>
 
         <p className="mt-4 text-[10px] text-gray-600">"Buktikan kamu tidak pernah meleset, Letnan!"</p>

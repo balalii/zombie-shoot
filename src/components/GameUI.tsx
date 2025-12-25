@@ -38,7 +38,7 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
       {/* Container gradient untuk keterbacaan text */}
       <div className='w-full'>
         <div className="bg-black w-full h-10 md:hidden"></div>
-        <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent   ">
+        <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent  -mt-10 md:mt-0 ">
           {/* KIRI: Health & Level */}
           <div className="flex flex-col gap-1 sm:gap-2">
             {/* Health Hearts */}
