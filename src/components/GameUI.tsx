@@ -36,41 +36,44 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
     <div className="absolute inset-0 font-pixel pointer-events-none select-none z-20 flex flex-col justify-between">
       {/* --- HUD BAR ATAS --- */}
       {/* Container gradient untuk keterbacaan text */}
-      <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent  pt-10 ">
-        {/* KIRI: Health & Level */}
-        <div className="flex flex-col gap-1 sm:gap-2">
-          {/* Health Hearts */}
-          <div className="flex items-center gap-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Heart
-                key={i}
-                // Ukuran Responsif: Mobile(20px), Tablet(24px), Desktop(32px)
-                className={`${i < health ? 'fill-red-500 text-red-600' : 'fill-gray-900/50 text-gray-700/50'} w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 transition-all duration-200 drop-shadow-md`}
-              />
-            ))}
+      <div className='w-full'>
+        <div className="bg-black w-full h-10 md:hidden"></div>
+        <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent   ">
+          {/* KIRI: Health & Level */}
+          <div className="flex flex-col gap-1 sm:gap-2">
+            {/* Health Hearts */}
+            <div className="flex items-center gap-1">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <Heart
+                  key={i}
+                  // Ukuran Responsif: Mobile(20px), Tablet(24px), Desktop(32px)
+                  className={`${i < health ? 'fill-red-500 text-red-600' : 'fill-gray-900/50 text-gray-700/50'} w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 transition-all duration-200 drop-shadow-md`}
+                />
+              ))}
+            </div>
+
+            {/* Level Badge */}
+            <div className="flex items-center gap-1 sm:gap-2 bg-gray-900/80 px-2 py-1 sm:px-3 sm:py-1.5 rounded border border-gray-600 w-fit shadow-lg backdrop-blur-sm">
+              <ShieldAlert className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-yellow-500" />
+              <span className="text-yellow-500 font-bold text-[10px] sm:text-xs lg:text-sm tracking-widest">LEVEL {level}</span>
+            </div>
           </div>
 
-          {/* Level Badge */}
-          <div className="flex items-center gap-1 sm:gap-2 bg-gray-900/80 px-2 py-1 sm:px-3 sm:py-1.5 rounded border border-gray-600 w-fit shadow-lg backdrop-blur-sm">
-            <ShieldAlert className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-yellow-500" />
-            <span className="text-yellow-500 font-bold text-[10px] sm:text-xs lg:text-sm tracking-widest">LEVEL {level}</span>
-          </div>
-        </div>
-
-        {/* KANAN: Score & Fullscreen */}
-        <div className="flex items-start gap-1 sm:gap-2">
-          {/* Score Text */}
-          <div
-            className="text-white font-bold tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-none
+          {/* KANAN: Score & Fullscreen */}
+          <div className="flex items-start gap-1 sm:gap-2">
+            {/* Score Text */}
+            <div
+              className="text-white font-bold tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-none
                           text-xl sm:text-4xl lg:text-5xl"
-          >
-            {score.toString().padStart(6, '0')}
-          </div>
+            >
+              {score.toString().padStart(6, '0')}
+            </div>
 
-          {/* Fullscreen Button */}
-          <button onClick={toggleFullscreen} className="pointer-events-auto bg-blue-600/80 hover:bg-blue-500 text-white rounded transition-colors shadow-lg p-1.5 sm:p-2 lg:p-2.5" aria-label="Toggle Fullscreen">
-            <Maximize className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
-          </button>
+            {/* Fullscreen Button */}
+            <button onClick={toggleFullscreen} className="pointer-events-auto bg-blue-600/80 hover:bg-blue-500 text-white rounded transition-colors shadow-lg p-1.5 sm:p-2 lg:p-2.5" aria-label="Toggle Fullscreen">
+              <Maximize className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+            </button>
+          </div>
         </div>
       </div>
 
