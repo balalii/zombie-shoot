@@ -19,16 +19,19 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
           <p className="text-yellow-400 text-xs font-bold mb-1">BRIEFING DARI JENDRAL:</p>
           <ul className="text-gray-300 text-xs sm:text-sm space-y-2 list-disc list-inside">
             <li>
-              <strong className="text-white">SHOOT TO KILL:</strong> Tembak Zombie sebelum masuk gedung.
+              <strong className="text-white">SHOOT TO KILL:</strong> Hentikan zombie sebelum mereka memasuki gedung.
             </li>
             <li>
-              <strong className="text-red-400">BIG BRUTE (Merah):</strong> Butuh <span className="underline">2 tembakan</span> untuk mati.
+              <strong className="text-red-400">BIG BRUTE (Zombie Raksasa):</strong> Butuh <span className="underline">2 tembakan</span> untuk dijatuhkan.
             </li>
             <li>
-              <strong className="text-blue-400">CIVILIANS:</strong> JANGAN TEMBAK! Biarkan masuk untuk Bonus Skor. Tembak = Penalti.
+              <strong className="text-green-400">RUNNER (Zombie Cepat):</strong> Bergerak sangat cepat. <span className="underline">Jangan lengah.</span>
             </li>
             <li>
-              <strong className="text-pink-400">HEARTS:</strong> Tembak Hati = Hancur. Biarkan masuk = +1 Nyawa.
+              <strong className="text-blue-400">CIVILIANS:</strong> JANGAN DITEMBAK! Biarkan masuk untuk bonus skor. Salah tembak = penalti.
+            </li>
+            <li>
+              <strong className="text-pink-400">HEARTS:</strong> Tembak = hancur. Biarkan masuk = <strong>+1 Nyawa</strong>.
             </li>
           </ul>
         </div>

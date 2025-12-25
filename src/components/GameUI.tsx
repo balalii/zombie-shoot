@@ -36,7 +36,7 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
     <div className="absolute inset-0 font-pixel pointer-events-none select-none z-20 flex flex-col justify-between">
       {/* --- HUD BAR ATAS --- */}
       {/* Container gradient untuk keterbacaan text */}
-      <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
+      <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent  pt-10 ">
         {/* KIRI: Health & Level */}
         <div className="flex flex-col gap-1 sm:gap-2">
           {/* Health Hearts */}
@@ -58,22 +58,17 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
         </div>
 
         {/* KANAN: Score & Fullscreen */}
-        <div className="flex flex-col items-end gap-1 sm:gap-2">
+        <div className="flex items-start gap-1 sm:gap-2">
           {/* Score Text */}
           <div
             className="text-white font-bold tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-none
-                          text-2xl sm:text-4xl lg:text-5xl"
+                          text-xl sm:text-4xl lg:text-5xl"
           >
             {score.toString().padStart(6, '0')}
           </div>
 
           {/* Fullscreen Button */}
-          <button
-            onClick={toggleFullscreen}
-            className="pointer-events-auto bg-blue-600/80 hover:bg-blue-500 text-white rounded transition-colors shadow-lg
-                       p-1.5 sm:p-2 lg:p-2.5"
-            aria-label="Toggle Fullscreen"
-          >
+          <button onClick={toggleFullscreen} className="pointer-events-auto bg-blue-600/80 hover:bg-blue-500 text-white rounded transition-colors shadow-lg p-1.5 sm:p-2 lg:p-2.5" aria-label="Toggle Fullscreen">
             <Maximize className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
           </button>
         </div>
@@ -96,7 +91,7 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
                 className="text-red-600 font-black tracking-tighter leading-none
                                text-4xl sm:text-5xl lg:text-6xl drop-shadow-md"
               >
-                M.I.A
+                FAILED
               </h1>
               <p
                 className="text-gray-400 tracking-[0.2em] font-medium mt-2
@@ -118,7 +113,7 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
               className="w-full bg-green-600 hover:bg-green-500 text-white font-bold border-b-4 border-green-800 active:border-b-0 active:translate-y-1 transition-all rounded-sm
                          py-3 sm:py-4 text-sm sm:text-lg lg:text-xl tracking-wider shadow-lg"
             >
-              REDEPLOY SQUAD
+              Restart mission
             </button>
           </div>
         </div>
