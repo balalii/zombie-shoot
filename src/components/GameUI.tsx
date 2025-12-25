@@ -53,7 +53,7 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
           {/* Level Badge */}
           <div className="flex items-center gap-1 sm:gap-2 bg-gray-900/80 px-2 py-1 sm:px-3 sm:py-1.5 rounded border border-gray-600 w-fit shadow-lg backdrop-blur-sm">
             <ShieldAlert className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-yellow-500" />
-            <span className="text-yellow-500 font-bold text-[10px] sm:text-xs lg:text-sm tracking-widest">DEFCON {level}</span>
+            <span className="text-yellow-500 font-bold text-[10px] sm:text-xs lg:text-sm tracking-widest">LEVEL {level}</span>
           </div>
         </div>
 

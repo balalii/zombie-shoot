@@ -248,14 +248,13 @@ export default class MainScene extends Phaser.Scene {
 
     switch (type) {
       case 'zombie_runner':
-        speedMult = 2.0; // Sangat Cepat
+        speedMult = 1.6; // Sangat Cepat
         // Runner sedikit lebih kecil dari normal agar terlihat kurus/lincah
-        scale = baseScale * 1;
+        scale = baseScale * 1.2;
         break;
       case 'zombie_brute':
         hp = this.level >= 4 ? 3 : 2; // Makin keras di level tinggi
         speedMult = 0.6; // Lambat
-        tint = 0xff5555; // Merah gelap
         // Brute jauh lebih besar
         scale = baseScale * 1.5;
         break;
@@ -264,9 +263,9 @@ export default class MainScene extends Phaser.Scene {
         scale = 0.9; // Sipil ukuran standar
         break;
       case 'heart':
-        speedMult = 1.5;
+        speedMult = 1.4;
         // Heart ukuran ikon, jangan terlalu besar
-        scale = 0.5;
+        scale = 0.1;
         break;
       default: // Normal
         speedMult = 1.0;
