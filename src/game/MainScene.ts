@@ -18,6 +18,7 @@ export default class MainScene extends Phaser.Scene {
   private gameActive = false;
   private spawnTimer!: Phaser.Time.TimerEvent;
 
+  // Callback ke React
   public onScoreUpdate?: (score: number) => void;
   public onHealthUpdate?: (health: number) => void;
   public onLevelUpdate?: (level: number) => void;
@@ -30,7 +31,10 @@ export default class MainScene extends Phaser.Scene {
   private maxHealth = 5;
 
   private backsound!: Phaser.Sound.BaseSound;
-  private readonly NPC_SIZE = { width: 40, height: 40 };
+
+  // Ukuran Hitbox (Area sentuh)
+  // Kita set lebar 70 agar sesuai dengan lebar zombie baru (73px)
+  private readonly NPC_SIZE = { width: 70, height: 70 };
 
   constructor() {
     super({ key: 'MainScene' });
@@ -38,11 +42,22 @@ export default class MainScene extends Phaser.Scene {
 
   preload() {
     this.load.image('background', 'bg.png');
-    this.load.image('zombie', 'zombie.png');
+
+    // =========================================================
+    // PENGATURAN SPRITE SHEET (1460x227 - 20 Frames)
+    // =========================================================
+    // Lebar per frame: 1460 / 20 = 73 pixel
+    // Tinggi per frame: 227 pixel
+    this.load.spritesheet('zombie_anim', 'zombie-run.png', {
+      frameWidth: 768,
+      frameHeight: 448,
+    });
+
     this.load.image('civilian', 'giphy.gif');
     this.load.image('shooter', 'shooter.png');
     this.load.image('heart', 'heart.png');
 
+    // Audio
     this.load.audio('shot', 'sounds/shotgun.mp3');
     this.load.audio('zombie_death', 'sounds/zombie_death.mp3');
     this.load.audio('scream', 'sounds/scream.mp3');
@@ -54,11 +69,27 @@ export default class MainScene extends Phaser.Scene {
     this.createBackground();
     const { width, height } = this.cameras.main;
 
+    // =========================================================
+    // DEFINISI ANIMASI
+    // =========================================================
+    if (!this.anims.exists('zombie_walk_action')) {
+      this.anims.create({
+        key: 'zombie_walk_action',
+        // Frame 0 sampai 19 (Total 20 frames)
+        frames: this.anims.generateFrameNumbers('zombie_anim', { start: 0, end: 30 }),
+        frameRate: 24, // 24 FPS agar animasi 20 frame terlihat mulus
+        repeat: -1,
+      });
+    }
+
+    // Setup Player
     this.playerBasePos = { x: width / 2, y: height / 2 };
     this.createPlayer(this.playerBasePos.x, this.playerBasePos.y);
 
+    // Input Tap/Klik
     this.input.on('pointerdown', this.handleTap, this);
 
+    // Decode Audio
     try {
       const s = this.sound as unknown as { decodeAudio?: (key: string) => void };
       ['shot', 'zombie_death', 'scream', 'backsound', 'zombie_walk'].forEach((key) => s.decodeAudio?.(key));
@@ -127,6 +158,7 @@ export default class MainScene extends Phaser.Scene {
     let x = 0,
       y = 0;
 
+    // Logika Spawn di 4 sisi layar
     if (side === 0) {
       x = Phaser.Math.Between(0, width);
       y = -offset;
@@ -141,6 +173,7 @@ export default class MainScene extends Phaser.Scene {
       y = Phaser.Math.Between(0, height);
     }
 
+    // Randomizer Tipe Musuh
     const rand = Math.random() * 100;
     let type: NPCType = 'zombie_normal';
 
@@ -166,49 +199,74 @@ export default class MainScene extends Phaser.Scene {
       }
     }
 
-    let spriteKey = 'zombie';
+    // Setting Scale Dasar
+    // Karena tinggi zombie baru 227px (sangat tinggi), kita set scale dasar lebih kecil (misal 0.4)
+    // 227px * 0.4 = ~90px (ukuran wajar di layar)
+    let baseScale = 0.4;
     let hp = 1;
     let speedMult = 1;
     let tint = 0xffffff;
-    let scale = 1;
+    let scale = baseScale;
 
+    // Modifikasi Scale & Speed per Tipe
     switch (type) {
       case 'zombie_runner':
         speedMult = 1.8;
         tint = 0x88ff88;
-        scale = 0.8;
+        scale = baseScale * 0.8; // Lebih kecil dari normal
         break;
       case 'zombie_brute':
         hp = 2;
         speedMult = 0.6;
         tint = 0xff4444;
-        scale = 1.4;
+        scale = baseScale * 1.3; // Lebih besar dari normal
         break;
       case 'civilian':
-        spriteKey = 'civilian';
         speedMult = 1.2;
+        scale = 1.0; // Civilian pakai gambar lain, scale normal
         break;
       case 'heart':
-        spriteKey = 'heart';
         speedMult = 1.5;
+        scale = 1.0; // Heart scale normal
         break;
       default:
         speedMult = 1.0;
         break;
     }
 
-    const sprite = this.add.image(0, 0, spriteKey);
-    if (sprite.width <= 1) {
-      sprite.setTexture('zombie');
-      if (type === 'heart') tint = 0xff69b4;
+    // --- PEMBUATAN SPRITE & ANIMASI ---
+    let sprite: Phaser.GameObjects.Sprite;
+
+    if (type.includes('zombie')) {
+      sprite = this.add.sprite(0, 0, 'zombie_anim');
+      sprite.play('zombie_walk_action', true);
+    } else if (type === 'civilian') {
+      sprite = this.add.sprite(0, 0, 'civilian');
+    } else {
+      sprite = this.add.sprite(0, 0, 'heart');
+      // Fallback: Jika heart.png tidak ada
+      if (sprite.width <= 1) {
+        sprite.setTexture('zombie_anim');
+        sprite.setTint(0xff69b4);
+      }
     }
 
-    sprite.setDisplaySize(this.NPC_SIZE.width * scale, this.NPC_SIZE.height * scale);
+    // Set Ukuran Tampilan
+    if (type.includes('zombie')) {
+      // Gunakan scale untuk zombie
+      sprite.setScale(scale);
+    } else {
+      // Untuk Heart/Civilian gunakan setDisplaySize agar konsisten
+      sprite.setDisplaySize(this.NPC_SIZE.width, this.NPC_SIZE.height);
+    }
+
     sprite.setTint(tint);
 
     const container = this.add.container(x, y, [sprite]);
-    container.setSize(this.NPC_SIZE.width * scale, this.NPC_SIZE.height * scale).setInteractive();
+    // Set Hitbox Container
+    container.setSize(70, 70).setInteractive();
 
+    // Sound Effect Spawn
     let walkSound: Phaser.Sound.BaseSound | undefined;
     if (type.includes('zombie')) {
       try {
@@ -233,7 +291,7 @@ export default class MainScene extends Phaser.Scene {
     } catch {}
     this.cameras.main.shake(80, 0.003);
 
-    // Animasi Recoil
+    // Animasi Recoil Player
     this.tweens.killTweensOf(this.player);
     const recoilDistance = 15;
     const angle = this.player.rotation;
@@ -264,15 +322,17 @@ export default class MainScene extends Phaser.Scene {
         this.createBloodSplatter(hitNPC.container.x, hitNPC.container.y, 0x0000ff);
         this.killNPC(hitNPC);
       } else {
+        // Hit Zombie
         hitNPC.hp -= 1;
         if (hitNPC.hp > 0) {
-          const sprite = hitNPC.container.list[0] as Phaser.GameObjects.Image;
+          const sprite = hitNPC.container.list[0] as Phaser.GameObjects.Sprite;
           sprite.setTint(0x555555);
           this.createBloodSplatter(hitNPC.container.x, hitNPC.container.y, 0x880000);
           try {
             this.sound.play('zombie_death', { volume: 0.3, rate: 1.5 });
           } catch {}
         } else {
+          // Mati
           let points = 10;
           if (hitNPC.type === 'zombie_runner') points = 20;
           if (hitNPC.type === 'zombie_brute') points = 50;
@@ -354,9 +414,6 @@ export default class MainScene extends Phaser.Scene {
     this.onGameOver?.();
   }
 
-  // ==========================================
-  // PERUBAHAN UTAMA: UPDATE LOOP ROTASI
-  // ==========================================
   update() {
     if (!this.gameActive) return;
 
@@ -369,6 +426,7 @@ export default class MainScene extends Phaser.Scene {
       const npc = this.npcs[i];
       const container = npc.container;
 
+      // Cek Jarak (Hitbox Base)
       const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, container.x, container.y);
       if (dist < 60) {
         if (npc.type === 'heart') {
@@ -386,6 +444,7 @@ export default class MainScene extends Phaser.Scene {
         continue;
       }
 
+      // Pergerakan
       const dx = this.player.x - container.x;
       const dy = this.player.y - container.y;
       const angle = Math.atan2(dy, dx);
@@ -393,21 +452,25 @@ export default class MainScene extends Phaser.Scene {
       container.x += Math.cos(angle) * npc.speed;
       container.y += Math.sin(angle) * npc.speed;
 
+      // Scaling Effect (kedalaman/3D effect)
+      // Kita modifikasi sedikit agar tidak terlalu kecil di atas
       const { height } = this.cameras.main;
-      const scaleBase = 0.8 + (container.y / height) * 0.4;
-      let typeScale = 1;
-      if (npc.type === 'zombie_brute') typeScale = 1.4;
-      if (npc.type === 'zombie_runner') typeScale = 0.8;
-      container.setScale(scaleBase * typeScale);
+      const scaleDepth = 0.9 + (container.y / height) * 0.2;
 
-      const sprite = container.list[0] as Phaser.GameObjects.Image;
+      const sprite = container.list[0] as Phaser.GameObjects.Sprite;
 
-      // --- LOGIKA ROTASI BARU ---
+      // Terapkan scale depth dikalikan scale dasar (hanya jika zombie sudah di-set scale-nya)
+      // Kita ambil scale X saat ini sebagai referensi base scale
+      // (Ini trik sederhana agar tidak me-reset scale runner/brute)
+      // sprite.setScale(sprite.scaleX * 1); // Opsional, jika ingin efek kedalaman aktif, aktifkan logika ini dengan hati-hati
+
+      // Rotasi & Orientasi
       if (npc.type === 'heart') {
-        // Jika Heart: Putar pelan (spin) & jangan menghadap pemain
         sprite.rotation += 0.05;
+      } else if (npc.type.includes('zombie')) {
+        // Koreksi Rotasi: Angle - 90 derajat
+        sprite.rotation = angle - Math.PI / 2;
       } else {
-        // Jika Zombie/Civilian: Menghadap pemain
         sprite.rotation = angle + Math.PI / 15;
       }
 
