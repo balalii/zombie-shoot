@@ -76,13 +76,13 @@ export default class MainScene extends Phaser.Scene {
 
     // Animasi Zombie
     if (!this.anims.exists('walk_normal')) {
-      this.anims.create({ key: 'walk_normal', frames: this.anims.generateFrameNumbers('zombie_anim', { start: 0, end: 31 }), frameRate: 24, repeat: -1 });
+      this.anims.create({ key: 'walk_normal', frames: this.anims.generateFrameNumbers('zombie_anim', { start: 0, end: 28 }), frameRate: 24, repeat: -1 });
     }
     if (!this.anims.exists('walk_runner')) {
-      this.anims.create({ key: 'walk_runner', frames: this.anims.generateFrameNumbers('runner_anim', { start: 0, end: 31 }), frameRate: 30, repeat: -1 });
+      this.anims.create({ key: 'walk_runner', frames: this.anims.generateFrameNumbers('runner_anim', { start: 0, end: 28 }), frameRate: 24, repeat: -1 });
     }
     if (!this.anims.exists('walk_brute')) {
-      this.anims.create({ key: 'walk_brute', frames: this.anims.generateFrameNumbers('brute_anim', { start: 0, end: 31 }), frameRate: 20, repeat: -1 });
+      this.anims.create({ key: 'walk_brute', frames: this.anims.generateFrameNumbers('brute_anim', { start: 0, end: 28 }), frameRate: 24, repeat: -1 });
     }
 
     // Animasi Civilian
