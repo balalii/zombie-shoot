@@ -89,7 +89,7 @@ export default class MainScene extends Phaser.Scene {
     if (!this.anims.exists('walk_civilian')) {
       this.anims.create({
         key: 'walk_civilian',
-        frames: this.anims.generateFrameNumbers('civilian_anim', { start: 0, end: 31 }),
+        frames: this.anims.generateFrameNumbers('civilian_anim', { start: 0, end: 28 }),
         frameRate: 24,
         repeat: -1,
       });
