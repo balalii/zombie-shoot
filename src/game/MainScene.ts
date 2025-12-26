@@ -89,7 +89,7 @@ export default class MainScene extends Phaser.Scene {
     if (!this.anims.exists('walk_civilian')) {
       this.anims.create({
         key: 'walk_civilian',
-        frames: this.anims.generateFrameNumbers('civilian_anim', { start: 0, end: 28 }),
+        frames: this.anims.generateFrameNumbers('civilian_anim', { start: 0, end: 27 }),
         frameRate: 24,
         repeat: -1,
       });
@@ -137,7 +137,7 @@ export default class MainScene extends Phaser.Scene {
   }
 
   // =========================================================
-  // 3. TRANSISI LEVEL (KUNING GELAP + ALARM)
+  // 3. TRANSISI LEVEL (ALARM 2x)
   // =========================================================
   private updateLevel() {
     const previousLevel = this.level;
@@ -159,11 +159,22 @@ export default class MainScene extends Phaser.Scene {
     if (this.level !== previousLevel) {
       this.onLevelUpdate?.(this.level);
 
-      // Flash Kuning Gelap/Emas (RGB: 204, 163, 0)
-      this.cameras.main.flash(800, 204, 163, 0);
-      try {
-        this.sound.play('alarm', { volume: 0.5 });
-      } catch {}
+      // --- LOGIKA ALARM 2 KALI ---
+
+      const triggerAlarm = () => {
+        // Flash durasi 400ms (agar sempat hilang sebelum kedipan kedua)
+        // Warna Kuning Emas (RGB: 204, 163, 0)
+        this.cameras.main.flash(400, 204, 163, 0);
+        try {
+          this.sound.play('alarm', { volume: 0.5 });
+        } catch {}
+      };
+
+      // 1. Bunyi/Kedip Pertama (Langsung)
+      triggerAlarm();
+
+      // 2. Bunyi/Kedip Kedua (Delay 600ms)
+      this.time.delayedCall(600, triggerAlarm, [], this);
     }
   }
 
@@ -300,20 +311,17 @@ export default class MainScene extends Phaser.Scene {
   }
 
   // =========================================================
-  // 4. MUZZLE FLASH (DIPERBAIKI: GESER KANAN)
+  // 4. MUZZLE FLASH
   // =========================================================
   private createMuzzleFlash() {
-    const gunLength = 40; // Jarak ke depan (moncong senapan)
-    const rightOffset = 18; // [BARU] Geser ke kanan (samping badan player)
+    const gunLength = 40; // Jarak ke depan
+    const rightOffset = 18; // Geser ke kanan
 
     const angle = this.player.rotation;
 
-    // Rumus Vektor: Posisi = Center + (Vektor Depan * Panjang) + (Vektor Kanan * Offset)
-    // Vektor Kanan adalah Vektor Depan diputar 90 derajat (PI/2)
     const flashX = this.player.x + Math.cos(angle) * gunLength + Math.cos(angle + Math.PI / 2) * rightOffset;
     const flashY = this.player.y + Math.sin(angle) * gunLength + Math.sin(angle + Math.PI / 2) * rightOffset;
 
-    // Buat efek percikan
     const flash = this.add.star(flashX, flashY, 5, 8, 16, 0xffff00);
     flash.setRotation(angle);
 
@@ -325,7 +333,6 @@ export default class MainScene extends Phaser.Scene {
       onComplete: () => flash.destroy(),
     });
 
-    // Partikel tambahan
     const particle = this.add.circle(flashX, flashY, 4, 0xffaa00);
     this.tweens.add({
       targets: particle,
@@ -345,10 +352,8 @@ export default class MainScene extends Phaser.Scene {
     } catch {}
     this.cameras.main.shake(80, 0.003);
 
-    // Panggil Muzzle Flash (Posisi baru)
     this.createMuzzleFlash();
 
-    // Animasi Recoil Player
     this.tweens.killTweensOf(this.player);
     const recoilDistance = 15;
     const angle = this.player.rotation;
@@ -373,9 +378,34 @@ export default class MainScene extends Phaser.Scene {
         this.createStartleEffect(hitNPC.container.x, hitNPC.container.y, 0xff69b4);
         this.killNPC(hitNPC);
       } else if (hitNPC.type === 'civilian') {
-        this.score = Math.max(0, this.score - 50);
+        // --- LOGIKA KENA CIVILIAN ---
+        const penalty = 50;
+        this.score = Math.max(0, this.score - penalty);
         this.onScoreUpdate?.(this.score);
+
+        // Shake dan efek visual
+        this.cameras.main.shake(200, 0.01);
         this.cameras.main.flash(200, 255, 0, 0);
+
+        // Popup teks pengurangan skor
+        const minusText = this.add
+          .text(hitNPC.container.x, hitNPC.container.y, `-${penalty}`, {
+            fontSize: '32px',
+            color: '#ff0000',
+            fontStyle: 'bold',
+            stroke: '#ffffff',
+            strokeThickness: 2,
+          })
+          .setOrigin(0.5);
+
+        this.tweens.add({
+          targets: minusText,
+          y: minusText.y - 60,
+          alpha: 0,
+          duration: 1000,
+          onComplete: () => minusText.destroy(),
+        });
+
         this.createBloodSplatter(hitNPC.container.x, hitNPC.container.y, 0x0000ff);
         this.killNPC(hitNPC);
       } else {
