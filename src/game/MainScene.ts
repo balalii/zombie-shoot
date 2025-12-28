@@ -176,7 +176,7 @@ export default class MainScene extends Phaser.Scene {
       const triggerAlarm = () => {
         // Flash durasi 400ms (agar sempat hilang sebelum kedipan kedua)
         // Warna Kuning Emas (RGB: 204, 163, 0)
-        this.cameras.main.flash(400, 204, 163, 0);
+        this.cameras.main.flash(600, 204, 163, 0);
         try {
           this.sound.play('alarm', { volume: 0.5 });
         } catch {}
@@ -186,7 +186,8 @@ export default class MainScene extends Phaser.Scene {
       triggerAlarm();
 
       // 2. Bunyi/Kedip Kedua (Delay 600ms)
-      this.time.delayedCall(600, triggerAlarm, [], this);
+      this.time.delayedCall(1000, triggerAlarm, [], this);
+      this.time.delayedCall(2000, triggerAlarm, [], this);
     }
   }
 

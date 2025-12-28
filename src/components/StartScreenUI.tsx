@@ -53,7 +53,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
                 type="text"
                 value={inputName}
                 onChange={(e) => setInputName(e.target.value)}
-                placeholder="ENTER CODENAME..."
+                placeholder="ENTER USERNAME"
                 maxLength={10}
                 className="w-full bg-gray-900 placeholder:text-xs sm:placeholder:text-2xl text-white text-center text-xl p-3 border-2 border-green-700 focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-700"
                 autoFocus
