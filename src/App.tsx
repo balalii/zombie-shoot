@@ -4,18 +4,26 @@ import { createGameConfig } from './game/config';
 import MainScene from './game/MainScene';
 import GameUI from './components/GameUI';
 import StartScreenUI from './components/StartScreenUI';
+import DialogUI from './components/DialogUI';
+import { getStoredUsername, saveScore } from './utils/gameStorage';
 
 export default function App() {
   const gameRef = useRef<Phaser.Game | null>(null);
   const sceneRef = useRef<MainScene | null>(null);
 
-  const [gameState, setGameState] = useState<'start' | 'playing' | 'gameOver'>('start');
+  // State Management
+  const [gameState, setGameState] = useState<'start' | 'dialogue' | 'playing' | 'gameOver'>('start');
   const [health, setHealth] = useState(3);
   const [score, setScore] = useState(0);
-  const [level, setLevel] = useState(1); // State Level Baru
+  const [level, setLevel] = useState(1);
+  const [username, setUsername] = useState<string | null>(null);
 
   useEffect(() => {
-    // Clean up game lama jika ada (development hot-reload fix)
+    // 1. Cek apakah ada username tersimpan saat load pertama
+    const savedUser = getStoredUsername();
+    if (savedUser) setUsername(savedUser);
+
+    // 2. Setup Phaser Game Instance
     if (gameRef.current) {
       gameRef.current.destroy(true);
     }
@@ -23,13 +31,14 @@ export default function App() {
     const config = createGameConfig('game-container');
     gameRef.current = new Phaser.Game(config);
 
+    // 3. Bind React State ke Phaser Events
     const timer = setTimeout(() => {
       const scene = gameRef.current?.scene.getScene('MainScene') as MainScene;
       if (scene) {
         sceneRef.current = scene;
         scene.onScoreUpdate = (s) => setScore(s);
         scene.onHealthUpdate = (h) => setHealth(h);
-        scene.onLevelUpdate = (l) => setLevel(l); // Sambungkan Level Update
+        scene.onLevelUpdate = (l) => setLevel(l);
         scene.onGameOver = () => setGameState('gameOver');
       }
     }, 200);
@@ -40,7 +49,32 @@ export default function App() {
     };
   }, []);
 
-  const handleStartGame = () => {
+  // --- LOGIC SAVE SCORE (SUPABASE) ---
+  useEffect(() => {
+    const saveToCloud = async () => {
+      // Hanya simpan jika Game Over, punya Username, dan Skor > 0
+      if (gameState === 'gameOver' && username && score > 0) {
+        console.log(`Attempting to save score for ${username}: ${score}`);
+        await saveScore(username, score);
+      }
+    };
+
+    saveToCloud();
+  }, [gameState, score, username]);
+
+  // --- HANDLERS ---
+
+  const handleStartPressed = () => {
+    // Refresh username dari storage (penting jika user baru saja input nama di StartScreen)
+    const currentUser = getStoredUsername();
+    setUsername(currentUser);
+
+    // Masuk ke mode dialog cerita
+    setGameState('dialogue');
+  };
+
+  const handleDialogComplete = () => {
+    // Setelah dialog selesai, mulai game
     setGameState('playing');
     sceneRef.current?.startGame();
   };
@@ -55,10 +89,16 @@ export default function App() {
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black select-none">
-      {gameState === 'start' && <StartScreenUI onStart={handleStartGame} />}
+      {/* 1. START SCREEN: Input Nama & Tombol Start */}
+      {gameState === 'start' && <StartScreenUI onStart={handleStartPressed} />}
 
+      {/* 2. DIALOG SCREEN: Story Mode */}
+      {gameState === 'dialogue' && <DialogUI onComplete={handleDialogComplete} />}
+
+      {/* 3. PHASER CANVAS */}
       <div id="game-container" className="w-full h-full" />
 
+      {/* 4. GAME HUD & GAME OVER (Termasuk Leaderboard) */}
       {(gameState === 'playing' || gameState === 'gameOver') && <GameUI health={health} score={score} level={level} isGameOver={gameState === 'gameOver'} onRestart={handleRestart} />}
     </div>
   );

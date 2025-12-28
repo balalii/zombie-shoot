@@ -1,8 +1,33 @@
+import { useState, useEffect } from 'react';
+import { getStoredUsername, setStoredUsername } from '../utils/gameStorage';
+
 interface StartScreenUIProps {
   onStart: () => void;
 }
 
 export default function StartScreenUI({ onStart }: StartScreenUIProps) {
+  const [username, setUsername] = useState<string>('');
+  const [inputName, setInputName] = useState('');
+  const [isRegistered, setIsRegistered] = useState(false);
+
+  useEffect(() => {
+    const existingUser = getStoredUsername();
+    if (existingUser) {
+      setUsername(existingUser);
+      setIsRegistered(true);
+    }
+  }, []);
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (inputName.trim().length > 0) {
+      const finalName = inputName.trim().toUpperCase().substring(0, 10); // Max 10 chars
+      setStoredUsername(finalName);
+      setUsername(finalName);
+      setIsRegistered(true);
+    }
+  };
+
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-black/95 z-30 p-4 font-pixel h-full overflow-y-auto">
       <div className="text-center max-w-xl w-full bg-gray-800 p-6 sm:p-8 border-4 border-double border-red-600 shadow-2xl relative overflow-hidden">
@@ -14,33 +39,56 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
         </h1>
         <p className="text-gray-500 text-xs sm:text-sm tracking-[0.2em] mb-6">PROJECT: DEADEYE</p>
 
-        {/* Narrative / Instructions Box [cite: 172, 174, 55] */}
-        <div className="bg-black/40 p-4 text-left space-y-3 mb-8 border-l-4 border-yellow-500">
-          <p className="text-yellow-400 text-xs font-bold mb-1">BRIEFING DARI JENDRAL:</p>
-          <ul className="text-gray-300 text-xs sm:text-sm space-y-2 list-disc list-inside">
-            <li>
-              <strong className="text-white">SHOOT TO KILL:</strong> Hentikan zombie sebelum mereka memasuki gedung.
-            </li>
-            <li>
-              <strong className="text-red-400">BIG BRUTE (Zombie Raksasa):</strong> Butuh <span className="underline">2 tembakan</span> untuk dijatuhkan.
-            </li>
-            <li>
-              <strong className="text-green-400">RUNNER (Zombie Cepat):</strong> Bergerak sangat cepat. <span className="underline">Jangan lengah.</span>
-            </li>
-            <li>
-              <strong className="text-blue-400">CIVILIANS:</strong> JANGAN DITEMBAK! Biarkan masuk untuk bonus skor. Salah tembak = penalti.
-            </li>
-            <li>
-              <strong className="text-pink-400">HEARTS:</strong> Tembak = hancur. Biarkan masuk = <strong>+1 Nyawa</strong>.
-            </li>
-          </ul>
-        </div>
+        {!isRegistered ? (
+          // --- FORM REGISTRASI USER BARU ---
+          <div className="animate-fade-in bg-black/40 p-6 border border-gray-600">
+            <p className="text-yellow-400 text-sm mb-4">IDENTIFICATION REQUIRED</p>
+            <form onSubmit={handleRegister} className="space-y-4">
+              <input
+                type="text"
+                value={inputName}
+                onChange={(e) => setInputName(e.target.value)}
+                placeholder="ENTER CODENAME..."
+                maxLength={10}
+                className="w-full bg-gray-900 text-white text-center text-xl p-3 border-2 border-green-700 focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-700"
+                autoFocus
+              />
+              <button type="submit" disabled={!inputName.trim()} className="w-full bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 transition-colors tracking-wider">
+                CONFIRM IDENTITY
+              </button>
+            </form>
+          </div>
+        ) : (
+          // --- TAMPILAN JIKA SUDAH LOGIN ---
+          <>
+            <div className="mb-6">
+              <p className="text-gray-400 text-xs">OPERATOR:</p>
+              <p className="text-2xl text-green-400 font-bold tracking-widest animate-pulse">{username}</p>
+            </div>
 
-        <button onClick={onStart} className="w-full group relative bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-6 border-b-4 border-red-800 active:border-b-0 active:translate-y-1 transition-all">
-          <span className="text-md sm:text-2xl tracking-widest group-hover:animate-pulse">START MISSION</span>
-        </button>
+            {/* Narrative / Instructions Box */}
+            <div className="bg-black/40 p-4 text-left space-y-3 mb-8 border-l-4 border-yellow-500">
+              <p className="text-yellow-400 text-xs font-bold mb-1">BRIEFING DARI JENDRAL:</p>
+              <ul className="text-gray-300 text-xs sm:text-sm space-y-2 list-disc list-inside">
+                <li>
+                  <strong className="text-white">SHOOT TO KILL:</strong> Hentikan zombie sebelum masuk.
+                </li>
+                <li>
+                  <strong className="text-red-400">BIG BRUTE:</strong> 2x Tembakan.
+                </li>
+                <li>
+                  <strong className="text-blue-400">CIVILIANS:</strong> JANGAN DITEMBAK!
+                </li>
+              </ul>
+            </div>
 
-        <p className="mt-4 text-[10px] text-gray-600">"Buktikan kamu tidak pernah meleset, Letnan!"</p>
+            <button onClick={onStart} className="w-full group relative bg-red-600 hover:bg-red-500 text-white font-bold py-4 px-6 border-b-4 border-red-800 active:border-b-0 active:translate-y-1 transition-all">
+              <span className="text-md sm:text-2xl tracking-widest group-hover:animate-pulse">START MISSION</span>
+            </button>
+
+            <p className="mt-4 text-[10px] text-gray-600">"Good luck, {username}."</p>
+          </>
+        )}
       </div>
     </div>
   );
