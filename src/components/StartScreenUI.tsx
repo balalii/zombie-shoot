@@ -53,7 +53,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
                 type="text"
                 value={inputName}
                 onChange={(e) => setInputName(e.target.value)}
-                placeholder="NAME..."
+                placeholder="ENTER CODENAME..."
                 maxLength={10}
                 className="w-full bg-gray-900 placeholder:text-xs sm:placeholder:text-2xl text-white text-center text-xl p-3 border-2 border-green-700 focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-700"
                 autoFocus
@@ -61,7 +61,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
               <button
                 type="submit"
                 disabled={!inputName.trim()}
-                className="w-full text-md sm:text-2xl bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 transition-colors tracking-wider"
+                className="w-full text-xs sm:text-2xl bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 transition-colors tracking-wider"
               >
                 CONFIRM IDENTITY
               </button>
