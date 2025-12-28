@@ -55,10 +55,14 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
                 onChange={(e) => setInputName(e.target.value)}
                 placeholder="ENTER CODENAME..."
                 maxLength={10}
-                className="w-full bg-gray-900 text-white text-center text-xl p-3 border-2 border-green-700 focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-700"
+                className="w-full bg-gray-900 placeholder:text-md sm:placeholder:text-2xl text-white text-center text-xl p-3 border-2 border-green-700 focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-700"
                 autoFocus
               />
-              <button type="submit" disabled={!inputName.trim()} className="w-full bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 transition-colors tracking-wider">
+              <button
+                type="submit"
+                disabled={!inputName.trim()}
+                className="w-full text-md sm:text-2xl bg-green-700 hover:bg-green-600 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-bold py-3 transition-colors tracking-wider"
+              >
                 CONFIRM IDENTITY
               </button>
             </form>
@@ -73,13 +77,12 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
                 className="flex self-center items-center animate-pulse gap-2 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 px-3 py-1.5 rounded border border-yellow-700/50 text-xs transition-all group"
               >
                 <Trophy className="w-3 h-3 group-hover:scale-110 transition-transform" />
-                Leaderboard
+                LEADERBOARD
               </button>
               <div className="text-left">
-                <p className="text-gray-500 text-[10px]">OPERATOR</p>
+                <p className="text-gray-500 text-[10px]">OPERATOR NAME</p>
                 <p className="text-xl text-green-400 font-bold tracking-widest animate-pulse">{username}</p>
               </div>
-
             </div>
 
             {/* Instruction Box */}
@@ -87,13 +90,25 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
               <p className="text-yellow-400 text-xs font-bold mb-1">TIPS:</p>
               <ul className="text-gray-300 text-xs sm:text-sm space-y-2 list-disc list-inside">
                 <li>
-                  <strong className="text-white">SHOOT TO KILL:<br/></strong> Hentikan zombie sebelum masuk.
+                  <strong className="text-white">
+                    SHOOT TO KILL:
+                    <br />
+                  </strong>{' '}
+                  Hentikan zombie sebelum masuk.
                 </li>
                 <li>
-                  <strong className="text-red-400">BIG BRUTE:<br/></strong> 2x Tembakan.
+                  <strong className="text-red-400">
+                    BIG BRUTE:
+                    <br />
+                  </strong>{' '}
+                  2x Tembakan.
                 </li>
                 <li>
-                  <strong className="text-blue-400">CIVILIANS:<br/></strong> JANGAN DITEMBAK!
+                  <strong className="text-blue-400">
+                    CIVILIANS:
+                    <br />
+                  </strong>{' '}
+                  JANGAN DITEMBAK!
                 </li>
               </ul>
             </div>
