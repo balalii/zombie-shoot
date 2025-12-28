@@ -25,4 +25,7 @@
     .animate-pulse-slow {
         animation: pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
+    body{
+        cursor: url('../assets/cursor.png'), auto;
+    }
 }

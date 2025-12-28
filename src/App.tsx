@@ -119,7 +119,7 @@ export default function App() {
   };
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black select-none">
+    <div  className="relative w-full h-screen overflow-hidden bg-black select-none">
       {/* 1. START SCREEN */}
       {gameState === 'start' && <StartScreenUI onStart={handleStartPressed} />}
 
