@@ -42,7 +42,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
         <h1 className="text-xl sm:text-5xl font-black text-white mb-1 tracking-tighter">
           ZOMBIE <span className="text-red-600">DEFENSE</span>
         </h1>
-        <p className="text-gray-500 text-xs sm:text-sm tracking-[0.2em] mb-6">PROJECT: DEADEYE</p>
+        <p className="text-gray-500 text-xs sm:text-sm tracking-[0.2em] mb-6">Shooter, Survival</p>
 
         {!isRegistered ? (
           // --- FORM REGISTRASI ---
@@ -66,31 +66,34 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
         ) : (
           // --- MENU UTAMA ---
           <>
-            <div className="mb-6 flex justify-between items-end border-b border-gray-700 pb-2">
+            <div className="mb-6 flex flex-col justify-between gap-y-5 items-baseline border-b border-gray-700 pb-2">
+              {/* TOMBOL BUKA LEADERBOARD */}
+              <button
+                onClick={() => setShowLeaderboard(true)}
+                className="flex self-center items-center animate-pulse gap-2 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 px-3 py-1.5 rounded border border-yellow-700/50 text-xs transition-all group"
+              >
+                <Trophy className="w-3 h-3 group-hover:scale-110 transition-transform" />
+                Leaderboard
+              </button>
               <div className="text-left">
                 <p className="text-gray-500 text-[10px]">OPERATOR</p>
                 <p className="text-xl text-green-400 font-bold tracking-widest animate-pulse">{username}</p>
               </div>
 
-              {/* TOMBOL BUKA LEADERBOARD */}
-              <button onClick={() => setShowLeaderboard(true)} className="flex items-center gap-2 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 px-3 py-1.5 rounded border border-yellow-700/50 text-xs transition-all group">
-                <Trophy className="w-3 h-3 group-hover:scale-110 transition-transform" />
-                RECORDS
-              </button>
             </div>
 
             {/* Instruction Box */}
-            <div className="bg-black/40 p-4 text-left space-y-3 mb-8 border-l-4 border-yellow-500">
-              <p className="text-yellow-400 text-xs font-bold mb-1">BRIEFING DARI JENDRAL:</p>
+            <div className="bg-black/40 p-4 text-left space-y-3 mb-8 border-l-4 border-yellow-500 text-xs sm:text-sm">
+              <p className="text-yellow-400 text-xs font-bold mb-1">TIPS:</p>
               <ul className="text-gray-300 text-xs sm:text-sm space-y-2 list-disc list-inside">
                 <li>
-                  <strong className="text-white">SHOOT TO KILL:</strong> Hentikan zombie sebelum masuk.
+                  <strong className="text-white">SHOOT TO KILL:<br/></strong> Hentikan zombie sebelum masuk.
                 </li>
                 <li>
-                  <strong className="text-red-400">BIG BRUTE:</strong> 2x Tembakan.
+                  <strong className="text-red-400">BIG BRUTE:<br/></strong> 2x Tembakan.
                 </li>
                 <li>
-                  <strong className="text-blue-400">CIVILIANS:</strong> JANGAN DITEMBAK!
+                  <strong className="text-blue-400">CIVILIANS:<br/></strong> JANGAN DITEMBAK!
                 </li>
               </ul>
             </div>

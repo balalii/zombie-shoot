@@ -45,14 +45,14 @@ export default function GameUI({
   return (
     <div className="absolute inset-0 font-pixel pointer-events-none select-none z-20 flex flex-col justify-between">
       {/* --- HUD BAR ATAS --- */}
-      <div className="w-full -mt-10 md:-mt-0">
-        <div className="bg-black w-full h-10 md:hidden"></div>
-        <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent -mt-3 md:mt-0 ">
+      <div className="w-full ">
+        <div className="bg-black w-full h-4 md:hidden"></div>
+        <div className="absolute top-6 w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent -mt-3 md:mt-0 ">
           {/* KIRI: Health & Level */}
           <div className="flex flex-col gap-1 sm:gap-2">
             <div className="flex items-center gap-1">
               {Array.from({ length: 5 }).map((_, i) => (
-                <Heart key={i} className={`${i < health ? 'fill-red-500 text-red-600' : 'fill-gray-900/50 text-gray-700/50'} w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 transition-all duration-200 drop-shadow-md`} />
+                <Heart key={i} className={`${i < health ? 'fill-red-500 text-red-600' : 'fill-gray-900/50 text-gray-700/50'} w-6 h-6 sm:w-6 sm:h-6 lg:w-8 lg:h-8 transition-all duration-200 drop-shadow-md`} />
               ))}
             </div>
             <div className="flex items-center gap-1 sm:gap-2 bg-gray-900/80 px-2 py-1 sm:px-3 sm:py-1.5 rounded border border-gray-600 w-fit shadow-lg backdrop-blur-sm">

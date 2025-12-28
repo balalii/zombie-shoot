@@ -17,7 +17,7 @@ export default function DialogUI({ onComplete, username }: DialogUIProps) {
     () => [
       { speaker: 'Jendral (via radio)', text: `Letnan ${username}, ini Jendral. Lapor status, kamu sudah di posisi?`, color: 'text-yellow-500' },
       { speaker: `Letnan ${username} (via radio)`, text: 'Jendral, posisi aman. Saya sudah di titik pantau dan siap menjalankan misi.', color: 'text-green-400' },
-      { speaker: 'Jendral (via radio)', text: 'Bagus. Dengar baik-baik. Di bawah sana adalah zona merah.', color: 'text-yellow-500' },
+      { speaker: 'Jendral (via radio)', text: 'Bagus. Dengar baik-baik, di bawah sana adalah zona merah.', color: 'text-yellow-500' },
       { speaker: 'Jendral (via radio)', text: 'Tugasmu sederhana: Lenyapkan setiap zombi yang mendekati Gedung pertahanan.', color: 'text-yellow-500' },
       { speaker: `Letnan ${username} (via radio)`, text: 'Dimengerti. Tembak di tempat.', color: 'text-green-400' },
       { speaker: 'Jendral (via radio)', text: `Tahan dulu, ${username}. Ada sipil yang berlari menuju lokasimu. Jangan sampai salah sasaran!`, color: 'text-yellow-500' },
@@ -79,18 +79,17 @@ export default function DialogUI({ onComplete, username }: DialogUIProps) {
         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-0 pointer-events-none bg-[length:100%_2px,3px_100%]"></div>
 
         {/* Header Transmisi */}
-        <div className="flex justify-between items-center mb-2 sm:mb-4 border-b border-gray-700 pb-2 relative z-10">
+        <div className="flex flex-col w-full mb-2 sm:mb-4 border-b border-gray-700 pb-2 relative z-10">
           <div className="flex items-center gap-2">
             <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full animate-pulse ${currentLine.speaker.includes('Jendral') ? 'bg-red-500' : 'bg-green-500'}`}></div>
             <span className="text-gray-400 text-[10px] sm:text-xs tracking-widest uppercase">ENCRYPTED CHANNEL 104.5</span>
           </div>
-          <br />
           <button
             onClick={(e) => {
               e.stopPropagation();
               onComplete();
             }}
-            className="text-gray-500 hover:text-white text-[8px] sm:text-xs underline z-20"
+            className="text-gray-500 self-end hover:text-white text-[8px] sm:text-xs underline z-20"
           >
             SKIP &gt;&gt;
           </button>
