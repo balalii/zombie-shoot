@@ -165,7 +165,7 @@ export default class MainScene extends Phaser.Scene {
       this.spawnRate = 700;
     } else {
       this.level = 4;
-      this.spawnRate = 450;
+      this.spawnRate = 500;
     }
 
     if (this.level !== previousLevel) {
