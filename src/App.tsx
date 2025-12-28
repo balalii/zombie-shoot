@@ -11,14 +11,17 @@ export default function App() {
   const gameRef = useRef<Phaser.Game | null>(null);
   const sceneRef = useRef<MainScene | null>(null);
 
-  // State Management Game
+  // --- STATE MANAGEMENT ---
   const [gameState, setGameState] = useState<'start' | 'dialogue' | 'playing' | 'gameOver'>('start');
   const [health, setHealth] = useState(3);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [username, setUsername] = useState<string | null>(null);
 
-  // STATE TRIGGER: Sinyal untuk memberitahu LeaderboardUI agar refresh data
+  // State untuk Fitur Pause
+  const [isPaused, setIsPaused] = useState(false);
+
+  // State untuk Trigger Refresh Leaderboard
   const [leaderboardTrigger, setLeaderboardTrigger] = useState<number>(0);
 
   useEffect(() => {
@@ -27,7 +30,6 @@ export default function App() {
     if (savedUser) setUsername(savedUser);
 
     // 2. Setup Phaser Game Instance
-    // Hancurkan instance lama jika ada (untuk mencegah duplikasi saat hot-reload dev)
     if (gameRef.current) {
       gameRef.current.destroy(true);
     }
@@ -36,11 +38,11 @@ export default function App() {
     gameRef.current = new Phaser.Game(config);
 
     // 3. Bind React State ke Phaser Events
-    // Kita butuh delay sedikit agar Scene benar-benar siap sebelum kita attach listener
     const timer = setTimeout(() => {
       const scene = gameRef.current?.scene.getScene('MainScene') as MainScene;
       if (scene) {
         sceneRef.current = scene;
+        // Binding Event dari Phaser ke React State
         scene.onScoreUpdate = (s) => setScore(s);
         scene.onHealthUpdate = (h) => setHealth(h);
         scene.onLevelUpdate = (l) => setLevel(l);
@@ -54,17 +56,15 @@ export default function App() {
     };
   }, []);
 
-  // --- LOGIC AUTO SAVE & UPDATE UI (Supabase Sync) ---
+  // --- LOGIC AUTO SAVE & SYNC LEADERBOARD ---
   useEffect(() => {
     const handleGameOverProcess = async () => {
-      // Cek apakah kondisi valid untuk save: Game Over, Ada Username, Skor > 0
+      // Simpan hanya jika Game Over, ada Username, dan Score > 0
       if (gameState === 'gameOver' && username && score > 0) {
-        // 1. Simpan Score ke Supabase (ASYNC - Tunggu sampai selesai)
+        // 1. Simpan Score ke Supabase (Async)
         await saveScore(username, score);
 
-        // 2. SETELAH SELESAI, Update trigger
-        // Ini akan menyebabkan prop 'leaderboardTrigger' di GameUI berubah
-        // dan LeaderboardUI akan melakukan fetch ulang secara otomatis.
+        // 2. Trigger Refresh Leaderboard di UI
         setLeaderboardTrigger(Date.now());
       }
     };
@@ -75,29 +75,47 @@ export default function App() {
   // --- HANDLERS ---
 
   const handleStartPressed = () => {
-    // Refresh username dari storage (penting jika user baru saja input nama di StartScreen)
+    // Refresh username memastikan data terbaru
     const currentUser = getStoredUsername();
     setUsername(currentUser);
 
-    // Masuk ke mode dialog cerita
+    // Reset pause state dan masuk ke dialog
+    setIsPaused(false);
     setGameState('dialogue');
   };
 
   const handleDialogComplete = () => {
-    // Setelah dialog selesai, mulai game phaser
     setGameState('playing');
+    // Mulai game di Phaser
     sceneRef.current?.startGame();
   };
 
   const handleRestart = () => {
-    // Reset state React
+    // Reset State React
     setScore(0);
     setHealth(3);
     setLevel(1);
+    setIsPaused(false); // Pastikan tidak pause saat restart
     setGameState('playing');
 
-    // Reset state Phaser
+    // Reset Game Phaser
     sceneRef.current?.restartGame();
+  };
+
+  // Logic Toggle Pause
+  const handlePauseToggle = () => {
+    // Hanya bisa pause saat sedang bermain
+    if (gameState !== 'playing') return;
+
+    if (isPaused) {
+      // RESUME
+      sceneRef.current?.resumeGame();
+      setIsPaused(false);
+    } else {
+      // PAUSE
+      sceneRef.current?.pauseGame();
+      setIsPaused(true);
+    }
   };
 
   return (
@@ -106,21 +124,24 @@ export default function App() {
       {gameState === 'start' && <StartScreenUI onStart={handleStartPressed} />}
 
       {/* 2. DIALOG SCREEN (Story Mode) */}
-      {/* Menerima prop username agar nama di dialog dinamis */}
+      {/* Kirim username ke dialog agar teks dinamis */}
       {gameState === 'dialogue' && <DialogUI onComplete={handleDialogComplete} username={username || 'OPERATOR'} />}
 
-      {/* 3. PHASER CANVAS CONTAINER */}
+      {/* 3. GAME CONTAINER (Phaser Canvas) */}
       <div id="game-container" className="w-full h-full" />
 
-      {/* 4. GAME HUD & GAME OVER MODAL */}
+      {/* 4. GAME UI & GAME OVER MODAL */}
       {(gameState === 'playing' || gameState === 'gameOver') && (
         <GameUI
           health={health}
           score={score}
           level={level}
           isGameOver={gameState === 'gameOver'}
+          // Props Pause
+          isPaused={isPaused}
+          onPauseToggle={handlePauseToggle}
+          // Props Restart & Leaderboard
           onRestart={handleRestart}
-          // Pass Trigger ke UI untuk refresh leaderboard otomatis
           leaderboardTrigger={leaderboardTrigger}
         />
       )}

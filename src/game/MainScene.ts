@@ -34,6 +34,18 @@ export default class MainScene extends Phaser.Scene {
 
   private readonly NPC_SIZE = { width: 60, height: 60 };
 
+  // 1. Method untuk PAUSE
+  public pauseGame() {
+    this.scene.pause(); // Hentikan update loop, physics, dan tween
+    this.sound.pauseAll(); // Hentikan semua suara (BGM & SFX)
+  }
+
+  // 2. Method untuk RESUME
+  public resumeGame() {
+    this.scene.resume(); // Lanjutkan loop
+    this.sound.resumeAll(); // Lanjutkan suara
+  }
+
   constructor() {
     super({ key: 'MainScene' });
   }
