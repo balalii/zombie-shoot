@@ -89,7 +89,7 @@ export default function DialogUI({ onComplete, username }: DialogUIProps) {
               e.stopPropagation();
               onComplete();
             }}
-            className="text-gray-500 hover:text-white text-[10px] sm:text-xs underline z-20"
+            className="text-gray-500 hover:text-white text-[8px] sm:text-xs underline z-20"
           >
             SKIP &gt;&gt;
           </button>
