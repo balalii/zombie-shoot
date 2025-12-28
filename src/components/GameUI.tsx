@@ -45,7 +45,7 @@ export default function GameUI({
   return (
     <div className="absolute inset-0 font-pixel pointer-events-none select-none z-20 flex flex-col justify-between">
       {/* --- HUD BAR ATAS --- */}
-      <div className="w-full">
+      <div className="w-full -mt-10 md:-mt-0">
         <div className="bg-black w-full h-10 md:hidden"></div>
         <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent -mt-3 md:mt-0 ">
           {/* KIRI: Health & Level */}
@@ -67,7 +67,7 @@ export default function GameUI({
 
             {/* TOMBOL PAUSE (Hanya muncul jika TIDAK Game Over) */}
             {!isGameOver && (
-              <button onClick={onPauseToggle} className="pointer-events-auto bg-yellow-600/80 hover:bg-yellow-500 text-white rounded transition-colors shadow-lg p-1.5 sm:p-2 lg:p-2.5 border border-yellow-800">
+              <button onClick={onPauseToggle} className="pointer-events-auto bg-yellow-500 hover:bg-yellow-500 text-white rounded transition-colors shadow-lg p-1.5 sm:p-2 lg:p-2.5 border border-yellow-800">
                 {/* Icon berubah tergantung state */}
                 {isPaused ? <Play className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 fill-white" /> : <Pause className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 fill-white" />}
               </button>

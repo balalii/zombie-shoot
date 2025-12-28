@@ -84,6 +84,7 @@ export default function DialogUI({ onComplete, username }: DialogUIProps) {
             <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full animate-pulse ${currentLine.speaker.includes('Jendral') ? 'bg-red-500' : 'bg-green-500'}`}></div>
             <span className="text-gray-400 text-[10px] sm:text-xs tracking-widest uppercase">ENCRYPTED CHANNEL 104.5</span>
           </div>
+          <br />
           <button
             onClick={(e) => {
               e.stopPropagation();
