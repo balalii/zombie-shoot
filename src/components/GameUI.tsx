@@ -1,6 +1,6 @@
 import { Heart, Maximize, ShieldAlert } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import LeaderboardUI from './LeaderboardUI'; // Import Component baru
+import LeaderboardUI from './LeaderboardUI';
 
 interface GameUIProps {
   health: number;
@@ -8,9 +8,10 @@ interface GameUIProps {
   level: number;
   isGameOver: boolean;
   onRestart: () => void;
+  leaderboardTrigger?: number; // Prop baru diterima dari App
 }
 
-export default function GameUI({ health, score, level, isGameOver, onRestart }: GameUIProps) {
+export default function GameUI({ health, score, level, isGameOver, onRestart, leaderboardTrigger }: GameUIProps) {
   const [isScreenVisible, setIsScreenVisible] = useState(false);
 
   useEffect(() => {
@@ -32,10 +33,11 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
 
   return (
     <div className="absolute inset-0 font-pixel pointer-events-none select-none z-20 flex flex-col justify-between">
-      {/* --- HUD BAR ATAS (Tidak berubah) --- */}
+      {/* --- HUD BAR ATAS --- */}
       <div className="w-full">
         <div className="bg-black w-full h-10 md:hidden"></div>
         <div className="w-full p-3 sm:p-5 lg:p-6 flex justify-between items-start bg-gradient-to-b from-black to-transparent -mt-3 md:mt-0 ">
+          {/* KIRI: Health & Level */}
           <div className="flex flex-col gap-1 sm:gap-2">
             <div className="flex items-center gap-1">
               {Array.from({ length: 5 }).map((_, i) => (
@@ -48,6 +50,7 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
             </div>
           </div>
 
+          {/* KANAN: Score & Fullscreen */}
           <div className="flex items-start gap-1 sm:gap-2">
             <div className="text-white font-bold tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-none text-xl sm:text-4xl lg:text-5xl">{score.toString().padStart(6, '0')}</div>
             <button onClick={toggleFullscreen} className="pointer-events-auto bg-blue-600/80 hover:bg-blue-500 text-white rounded transition-colors shadow-lg p-1.5 sm:p-2 lg:p-2.5">
@@ -57,7 +60,7 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
         </div>
       </div>
 
-      {/* --- GAME OVER MODAL (Updated) --- */}
+      {/* --- GAME OVER MODAL --- */}
       {isGameOver && (
         <div className={`pointer-events-auto fixed inset-0 flex items-center justify-center bg-black/90 z-50 transition-opacity duration-500 px-4 ${isScreenVisible ? 'opacity-100' : 'opacity-0'}`}>
           <div className="text-center w-full max-w-[90%] sm:max-w-md bg-gray-900 border-4 border-double border-red-600 shadow-[0_0_30px_rgba(220,38,38,0.5)] p-4 sm:p-6 relative overflow-hidden flex flex-col max-h-[90vh]">
@@ -66,16 +69,17 @@ export default function GameUI({ health, score, level, isGameOver, onRestart }: 
 
             {/* Title */}
             <h1 className="text-red-600 font-black tracking-tighter leading-none text-4xl sm:text-5xl drop-shadow-md">FAILED</h1>
-            <p className="text-gray-400 tracking-[0.2em] font-medium mt-1 mb-4 text-[10px] sm:text-xs">MISSION FAILED</p>
+            <p className="text-gray-400 tracking-[0.2em] font-medium mt-1 mb-2 text-[10px] sm:text-xs">MISSION FAILED</p>
 
             {/* Score Box */}
-            <div className="bg-black/40 border-y-2 border-gray-700 py-2 mb-2">
+            <div className="bg-black/40 border-y-2 border-gray-700 py-2 mb-4">
               <p className="text-gray-500 tracking-widest mb-1 text-[10px] uppercase">Final Score</p>
               <p className="text-yellow-400 font-bold leading-none text-3xl">{score}</p>
             </div>
 
-            {/* LEADERBOARD INTEGRATION */}
-            <LeaderboardUI currentScore={score} />
+            {/* --- LEADERBOARD COMPONENT --- */}
+            {/* Menerima currentScore untuk highlight dan refreshTrigger untuk update otomatis */}
+            <LeaderboardUI currentScore={score} refreshTrigger={leaderboardTrigger} />
 
             {/* Restart Button */}
             <div className="mt-4 sm:mt-6">

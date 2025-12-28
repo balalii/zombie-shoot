@@ -11,19 +11,23 @@ export default function App() {
   const gameRef = useRef<Phaser.Game | null>(null);
   const sceneRef = useRef<MainScene | null>(null);
 
-  // State Management
+  // State Management Game
   const [gameState, setGameState] = useState<'start' | 'dialogue' | 'playing' | 'gameOver'>('start');
   const [health, setHealth] = useState(3);
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
   const [username, setUsername] = useState<string | null>(null);
 
+  // STATE TRIGGER: Sinyal untuk memberitahu LeaderboardUI agar refresh data
+  const [leaderboardTrigger, setLeaderboardTrigger] = useState<number>(0);
+
   useEffect(() => {
-    // 1. Cek apakah ada username tersimpan saat load pertama
+    // 1. Ambil username (jika ada) saat load pertama kali
     const savedUser = getStoredUsername();
     if (savedUser) setUsername(savedUser);
 
     // 2. Setup Phaser Game Instance
+    // Hancurkan instance lama jika ada (untuk mencegah duplikasi saat hot-reload dev)
     if (gameRef.current) {
       gameRef.current.destroy(true);
     }
@@ -32,6 +36,7 @@ export default function App() {
     gameRef.current = new Phaser.Game(config);
 
     // 3. Bind React State ke Phaser Events
+    // Kita butuh delay sedikit agar Scene benar-benar siap sebelum kita attach listener
     const timer = setTimeout(() => {
       const scene = gameRef.current?.scene.getScene('MainScene') as MainScene;
       if (scene) {
@@ -49,17 +54,22 @@ export default function App() {
     };
   }, []);
 
-  // --- LOGIC SAVE SCORE (SUPABASE) ---
+  // --- LOGIC AUTO SAVE & UPDATE UI (Supabase Sync) ---
   useEffect(() => {
-    const saveToCloud = async () => {
-      // Hanya simpan jika Game Over, punya Username, dan Skor > 0
+    const handleGameOverProcess = async () => {
+      // Cek apakah kondisi valid untuk save: Game Over, Ada Username, Skor > 0
       if (gameState === 'gameOver' && username && score > 0) {
-        console.log(`Attempting to save score for ${username}: ${score}`);
+        // 1. Simpan Score ke Supabase (ASYNC - Tunggu sampai selesai)
         await saveScore(username, score);
+
+        // 2. SETELAH SELESAI, Update trigger
+        // Ini akan menyebabkan prop 'leaderboardTrigger' di GameUI berubah
+        // dan LeaderboardUI akan melakukan fetch ulang secara otomatis.
+        setLeaderboardTrigger(Date.now());
       }
     };
 
-    saveToCloud();
+    handleGameOverProcess();
   }, [gameState, score, username]);
 
   // --- HANDLERS ---
@@ -74,32 +84,46 @@ export default function App() {
   };
 
   const handleDialogComplete = () => {
-    // Setelah dialog selesai, mulai game
+    // Setelah dialog selesai, mulai game phaser
     setGameState('playing');
     sceneRef.current?.startGame();
   };
 
   const handleRestart = () => {
+    // Reset state React
     setScore(0);
     setHealth(3);
     setLevel(1);
     setGameState('playing');
+
+    // Reset state Phaser
     sceneRef.current?.restartGame();
   };
 
   return (
     <div className="relative w-full h-screen overflow-hidden bg-black select-none">
-      {/* 1. START SCREEN: Input Nama & Tombol Start */}
+      {/* 1. START SCREEN */}
       {gameState === 'start' && <StartScreenUI onStart={handleStartPressed} />}
 
-      {/* 2. DIALOG SCREEN: Story Mode */}
-      {gameState === 'dialogue' && <DialogUI onComplete={handleDialogComplete} />}
+      {/* 2. DIALOG SCREEN (Story Mode) */}
+      {/* Menerima prop username agar nama di dialog dinamis */}
+      {gameState === 'dialogue' && <DialogUI onComplete={handleDialogComplete} username={username || 'OPERATOR'} />}
 
-      {/* 3. PHASER CANVAS */}
+      {/* 3. PHASER CANVAS CONTAINER */}
       <div id="game-container" className="w-full h-full" />
 
-      {/* 4. GAME HUD & GAME OVER (Termasuk Leaderboard) */}
-      {(gameState === 'playing' || gameState === 'gameOver') && <GameUI health={health} score={score} level={level} isGameOver={gameState === 'gameOver'} onRestart={handleRestart} />}
+      {/* 4. GAME HUD & GAME OVER MODAL */}
+      {(gameState === 'playing' || gameState === 'gameOver') && (
+        <GameUI
+          health={health}
+          score={score}
+          level={level}
+          isGameOver={gameState === 'gameOver'}
+          onRestart={handleRestart}
+          // Pass Trigger ke UI untuk refresh leaderboard otomatis
+          leaderboardTrigger={leaderboardTrigger}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getStoredUsername, setStoredUsername } from '../utils/gameStorage';
+import { Trophy } from 'lucide-react';
+import LeaderboardUI from './LeaderboardUI';
 
 interface StartScreenUIProps {
   onStart: () => void;
@@ -9,6 +11,9 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
   const [username, setUsername] = useState<string>('');
   const [inputName, setInputName] = useState('');
   const [isRegistered, setIsRegistered] = useState(false);
+
+  // State untuk Modal Leaderboard
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
 
   useEffect(() => {
     const existingUser = getStoredUsername();
@@ -21,7 +26,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
     if (inputName.trim().length > 0) {
-      const finalName = inputName.trim().toUpperCase().substring(0, 10); // Max 10 chars
+      const finalName = inputName.trim().toUpperCase().substring(0, 10);
       setStoredUsername(finalName);
       setUsername(finalName);
       setIsRegistered(true);
@@ -40,7 +45,7 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
         <p className="text-gray-500 text-xs sm:text-sm tracking-[0.2em] mb-6">PROJECT: DEADEYE</p>
 
         {!isRegistered ? (
-          // --- FORM REGISTRASI USER BARU ---
+          // --- FORM REGISTRASI ---
           <div className="animate-fade-in bg-black/40 p-6 border border-gray-600">
             <p className="text-yellow-400 text-sm mb-4">IDENTIFICATION REQUIRED</p>
             <form onSubmit={handleRegister} className="space-y-4">
@@ -59,14 +64,22 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
             </form>
           </div>
         ) : (
-          // --- TAMPILAN JIKA SUDAH LOGIN ---
+          // --- MENU UTAMA ---
           <>
-            <div className="mb-6">
-              <p className="text-gray-400 text-xs">OPERATOR:</p>
-              <p className="text-2xl text-green-400 font-bold tracking-widest animate-pulse">{username}</p>
+            <div className="mb-6 flex justify-between items-end border-b border-gray-700 pb-2">
+              <div className="text-left">
+                <p className="text-gray-500 text-[10px]">OPERATOR</p>
+                <p className="text-xl text-green-400 font-bold tracking-widest animate-pulse">{username}</p>
+              </div>
+
+              {/* TOMBOL BUKA LEADERBOARD */}
+              <button onClick={() => setShowLeaderboard(true)} className="flex items-center gap-2 bg-yellow-900/20 hover:bg-yellow-900/40 text-yellow-500 px-3 py-1.5 rounded border border-yellow-700/50 text-xs transition-all group">
+                <Trophy className="w-3 h-3 group-hover:scale-110 transition-transform" />
+                RECORDS
+              </button>
             </div>
 
-            {/* Narrative / Instructions Box */}
+            {/* Instruction Box */}
             <div className="bg-black/40 p-4 text-left space-y-3 mb-8 border-l-4 border-yellow-500">
               <p className="text-yellow-400 text-xs font-bold mb-1">BRIEFING DARI JENDRAL:</p>
               <ul className="text-gray-300 text-xs sm:text-sm space-y-2 list-disc list-inside">
@@ -90,6 +103,16 @@ export default function StartScreenUI({ onStart }: StartScreenUIProps) {
           </>
         )}
       </div>
+
+      {/* --- MODAL LEADERBOARD (POPUP) --- */}
+      {showLeaderboard && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 p-4 animate-fade-in backdrop-blur-sm">
+          <div className="w-full max-w-lg animate-[fadeIn_0.3s_ease-out]">
+            {/* Kita kirim refreshTrigger Date.now() agar selalu ambil data baru saat dibuka */}
+            <LeaderboardUI refreshTrigger={Date.now()} onClose={() => setShowLeaderboard(false)} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
